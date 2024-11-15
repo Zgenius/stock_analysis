@@ -5,8 +5,8 @@ import cointegration as co
 import time
 
 # 时间范围
-START_DATE = "20210101"
-END_DATE = "20241112"
+START_DATE = "20190101"
+END_DATE = "20241115"
 
 # 获取a股所有股票信息
 stock_code_2_info = cs.stock_code_2_info()
@@ -20,8 +20,8 @@ for i in range(length - 1):
         stock_code_b = stock_codes[j]
 
         # 获取基础信息
-        stock_daily_history_a = ak.stock_zh_a_hist(symbol=stock_code_a, period="daily", start_date=START_DATE, end_date=END_DATE, adjust="qfq")
-        stock_daily_history_b = ak.stock_zh_a_hist(symbol=stock_code_b, period="daily", start_date=START_DATE, end_date=END_DATE, adjust="qfq")
+        stock_daily_history_a = cs.stock_daily_history(symbol_code=stock_code_a, start_date=START_DATE, end_date=END_DATE, adjust="qfq")
+        stock_daily_history_b = cs.stock_daily_history(symbol=stock_code_b, start_date=START_DATE, end_date=END_DATE, adjust="qfq")
         if len(stock_daily_history_a) <= 750 or len(stock_daily_history_b) <= 750:
             continue
 

@@ -36,3 +36,7 @@ def index_list(symbol_name = "指数成份"):
 # 获取指数成分
 def index_contain_stocks(symbol_code = "00300"):
     return ak.index_stock_cons_csindex(symbol=symbol_code)
+
+# 获取股票历史每天数据
+def stock_daily_history(symbol_code, start_date, end_date):
+    return ak.stock_zh_a_hist(symbol=symbol_code, period="daily", start_date=start_date, end_date=end_date, adjust="qfq")
