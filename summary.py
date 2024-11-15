@@ -19,10 +19,10 @@ for index, row in stocks.iterrows():
 
 # 获取所有a股编码
 stock_codes = list(stock_code_2_info.keys())
-length = len(stock_codes)
+stock_code_length = len(stock_codes)
 
 for stock_code_a in base_stocks:
-    for j in range(0, length):
+    for j in range(0, stock_code_length):
         stock_code_b = stock_codes[j]
 
         # 获取基础信息
