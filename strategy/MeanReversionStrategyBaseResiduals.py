@@ -12,19 +12,21 @@ def mean_reversion(stock1, stock2):
 
     # ADF检验协整关系
     if (abs(residuals) < 1e-6).all():
-        print("Residuals are constant, skipping ADF test.")
+        # print("Residuals are constant, skipping ADF test.")
         return -1
 
     # ADF检验协整关系
     adf_result = adfuller(residuals)
-    print(f"ADF检验的p值: {adf_result[1]}")
+    # print(f"ADF检验的p值: {adf_result[1]}")
 
     # 判断是否具有协整关系
     if adf_result[1] < 0.05:
         print("两只股票具有协整关系。")
     else:
-        print("两只股票不具有协整关系。")
+        # print("两只股票不具有协整关系。")
         return -1
+
+    print(f"ADF检验的p值: {adf_result[1]}")
 
     # 计算价差（回归残差）
     spread = residuals

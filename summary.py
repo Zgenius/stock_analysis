@@ -5,6 +5,8 @@ import cointegration as co
 import strategy.MeanReversionStrategyBaseResiduals as mr
 import time
 
+# 最小上市交易日
+MIN_EXCHANGE_DAY_NUM = 750
 # 时间范围
 START_DATE = "20190101"
 END_DATE = "20241115"
@@ -28,7 +30,7 @@ for stock_code_a in base_stocks:
         # 获取基础信息
         stock_daily_history_a = cs.stock_daily_history(symbol_code=stock_code_a, start_date=START_DATE, end_date=END_DATE)
         stock_daily_history_b = cs.stock_daily_history(symbol_code=stock_code_b, start_date=START_DATE, end_date=END_DATE)
-        if len(stock_daily_history_a) <= 750 or len(stock_daily_history_b) <= 750:
+        if len(stock_daily_history_a) <= MIN_EXCHANGE_DAY_NUM or len(stock_daily_history_b) <= MIN_EXCHANGE_DAY_NUM:
             continue
 
         stock_merge_list = cs.sync_data_list(stock_daily_history_a, stock_daily_history_b)
@@ -37,12 +39,16 @@ for stock_code_a in base_stocks:
 
         # 元素数量
         length = len(stock_daily_history_a);
-        # 没有数据，或者上市日期小于750个交易日的就不计算了
-        if length == 0 or length < 750:
+        # 没有数据，或者上市日期小于MIN_EXCHANGE_DAY_NUM个交易日的就不计算了
+        if length == 0 or length < MIN_EXCHANGE_DAY_NUM:
             continue
 
-        print(mr.mean_reversion(stock_daily_history_a[const.CLOSE_PRICE_KEY], stock_daily_history_b[const.CLOSE_PRICE_KEY]))
-        print(stock_code_a, stock_code_b)
+        mean_reversion_code = mr.mean_reversion(stock_daily_history_a[const.CLOSE_PRICE_KEY], stock_daily_history_b[const.CLOSE_PRICE_KEY])
+        if mean_reversion_code == -1:
+            continue
+
+        print(mean_reversion_code)
+        print(stock_code_a, stock_code_2_info[stock_code_a]["成分券名称"], stock_code_b, stock_code_2_info[stock_code_b]["成分券名称"])
 
         # 睡眠100毫秒，防止请求过于频繁
         time.sleep(0.1)
