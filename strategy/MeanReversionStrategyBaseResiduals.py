@@ -88,8 +88,10 @@ def mean_reversion(stock1, stock2):
     spread_mean = spread.mean()
     spread_std = spread.std()
 
-    print(f"价差的均值: {spread_mean}")
-    print(f"价差的标准差: {spread_std}")
+    print("价差的均值:{:.15f}".format(spread_mean))
+    # print(f"价差的均值: {spread_mean}")
+    # print(f"价差的标准差: {spread_std}")
+    print("价差的标准差:{:.15f}".format(spread_std))
 
     # 基于均值和标准差进行交易决策
     threshold_up = spread_mean + 2 * spread_std

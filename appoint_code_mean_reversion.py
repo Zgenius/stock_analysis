@@ -7,9 +7,9 @@ import strategy.MeanReversionStrategyBaseResiduals as mr
 import time
 
 # 最小上市交易日
-MIN_EXCHANGE_DAY_NUM = 750
+MIN_EXCHANGE_DAY_NUM = 2000
 # 时间范围
-START_DATE = "20190101"
+START_DATE = "20140101"
 END_DATE = "20241115"
 
 base_stocks = {"000651":"格力电器", "600036":"招商银行", "600519":"贵州茅台", "601318":"中国平安"}
