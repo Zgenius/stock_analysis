@@ -1,6 +1,6 @@
 import akshare as ak
-from datetime import datetime
 import pandas as pd
+from datetime import datetime
 
 # 获取股票历史每天数据
 def fund_daily_history(symbol_code, start_date, end_date):
