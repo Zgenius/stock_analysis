@@ -15,7 +15,7 @@ END_DATE = "20241115"
 base_stocks = {"000651":"格力电器", "600036":"招商银行", "600519":"贵州茅台", "601318":"中国平安"}
 
 # 获取沪深300所有股票信息
-stocks = cs.index_contain_stocks(fc.CODE_ZZ_500);
+stocks = cs.index_contain_stocks(fc.CODE_ZZ_A500);
 stock_code_2_info = {}
 for index, row in stocks.iterrows():
     stock_code_2_info[row["成分券代码"]] = row
