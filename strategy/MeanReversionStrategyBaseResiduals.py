@@ -1,15 +1,15 @@
-import numpy as np
-import pandas as pd
 import statsmodels.api as sm
 import constant.constant as constant
 from statsmodels.tsa.stattools import adfuller
-import akshare as ak
 import cair_stock as cs
 import constant.eastmoney_constant as const
-import constant.fund_code_constant as fc
-import cointegration as co
 import strategy.MeanReversionStrategyBaseResiduals as mr
 import time
+
+FAILED = -1
+SELL = 2
+BUY = 1
+HOLDING = 0
 
 def index_fund_mean_reversion(symbol_code, start_date, end_date):
     # 获取给定基金的成分信息

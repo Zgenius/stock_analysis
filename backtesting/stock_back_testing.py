@@ -1,95 +1,84 @@
 import cair_stock as cs
 import constant.eastmoney_constant as const
 import strategy.MeanReversionStrategyBaseResiduals as mr
+import sys
+from datetime import datetime
+from model.account import account
 
-# 股票编码A
-STOCK_CODE_A = "600036"
-# 股票编码B
-STOCK_CODE_B = "002142"
+class stockBackTesting:
+    # 时间范围
+    START_DATE = "20080101"
+    END_DATE = datetime.now().strftime("%Y%m%d")
 
-# 时间范围
-START_DATE = "20080101"
-END_DATE = "20241115"
+    # 开始偏移量
+    START_OFFSET = 750
+    # 单次交易股票数
+    EXCHANGE_NUM = 1000
+    # 两次交易时间间隔
+    EXCHANGE_INTERVAL = 20
+    # 初始现金
+    INIT_CASH = 100000
+    # 单次交易股票数
+    EXCHANGE_NUM = 1000
 
-# 开始偏移量
-START_OFFSET = 750
-# 单次交易股票数
-EXCHANGE_NUM = 1000
+    # 运行脚本
+    def run(self, argv):
+        # 获取输入参数
+        if len(argv) != 2:
+            exit(0)
 
-# 股票A的每日历史信息
-stock_daily_history_a = cs.stock_daily_history(STOCK_CODE_A, START_DATE, END_DATE)
-stock_daily_history_b = cs.stock_daily_history(STOCK_CODE_B, START_DATE, END_DATE)
+        # 获取历史数据
+        stock_history_dict = self.getStockHistory(argv, self.START_DATE, self.END_DATE)
+        stock_daily_history_0 = stock_history_dict[argv[0]]
+        stock_daily_history_1 = stock_history_dict[argv[1]]
 
-stock_merge_list = cs.sync_data_list(stock_daily_history_a, stock_daily_history_b)
-stock_daily_history_a = stock_merge_list[0]
-stock_daily_history_b = stock_merge_list[1]
+        # 初始化账户
+        user_account = account(self.INIT_CASH)
 
-stock_a_num = 10000
-stock_b_num = 10000
+        # 获取股票共同交易的天数
+        stock_length = stock_daily_history_0.shape[0]
 
-ini_price_a = stock_daily_history_a.at[START_OFFSET, const.CLOSE_PRICE_KEY]
-ini_price_b = stock_daily_history_b.at[START_OFFSET, const.CLOSE_PRICE_KEY]
+        for i in range(self.START_OFFSET, stock_length):
+            # 获取收盘见
+            price_0 = stock_daily_history_0.at[i, const.CLOSE_PRICE_KEY]
+            price_1 = stock_daily_history_1.at[i, const.CLOSE_PRICE_KEY]
 
-end_price_a = 0
-end_price_b = 0
+            # 基于残差的均值回归策略判断
+            result = mr.mean_reversion(stock_daily_history_0[const.CLOSE_PRICE_KEY].iloc[0:i], stock_daily_history_1[const.CLOSE_PRICE_KEY].iloc[0:i])
 
-# 余额
-balance = 0
+            if result == mr.BUY:
+                # 存在持仓股票，先卖出
+                user_account.sell(argv[0], price_0, self.EXCHANGE_NUM)
+                # 用现金买入
+                user_account.buy(argv[1], price_1, user_account.avilable_cash / price_1)
 
-# 两次交易时间间隔
-EXCHANGE_INTERVAL = 20
-# 交易次数
-exchange_times = 0
+            elif result == mr.SELL:
+                # 存在持仓股票，先卖出
+                user_account.sell(argv[1], price_1, self.EXCHANGE_NUM)
+                # 用现金买入
+                user_account.buy(argv[0], price_0, user_account.avilable_cash / price_0)
 
-print("招商银行:", 10000, "宁波银行:", 10000, ini_price_a, ini_price_b, 10000 * ini_price_a + 10000 * ini_price_b)
-stock_length = stock_daily_history_a.shape[0]
-for i in range(START_OFFSET, stock_length):
-    res = mr.mean_reversion(stock_daily_history_a[const.CLOSE_PRICE_KEY].iloc[0:i], stock_daily_history_b[const.CLOSE_PRICE_KEY].iloc[0:i])
-    price_a = stock_daily_history_a.at[i, const.CLOSE_PRICE_KEY]
-    price_b = stock_daily_history_b.at[i, const.CLOSE_PRICE_KEY]
+        print(user_account)
+    
+    # 获取输入的股票历史数据
+    def getStockHistory(self, stock_codes, start_date, end_date):
+        # 必须是2个代码
+        if len(stock_codes) != 2:
+            return {}
 
-    date_a = stock_daily_history_a.at[i, const.DATE]
-    date_b = stock_daily_history_b.at[i, const.DATE]
+        # 股票A的每日历史信息
+        stock_daily_history_0 = cs.stock_daily_history(stock_codes[0], start_date, end_date)
+        stock_daily_history_1 = cs.stock_daily_history(stock_codes[1], start_date, end_date)
 
-    # 1 - 买入b，卖出a
-    if res == 1:
-        if stock_a_num >= EXCHANGE_NUM and exchange_times % EXCHANGE_INTERVAL == 0:
-            # 算卖出钱数
-            total = price_a * EXCHANGE_NUM
-            # 卖出
-            stock_a_num -= EXCHANGE_NUM
-            # 买入余额
-            stock_balance = total % price_b
-            # 买入数量
-            stock_b_num += (total - stock_balance) / price_b
-            print(date_a, date_b)
-            print("买入宁波银行持仓: 招商银行：", stock_a_num, "宁波银行:", stock_b_num,  price_a, price_b)
+        # 计算有共同时间的历史数据
+        stock_merge_list = cs.sync_data_list(stock_daily_history_0, stock_daily_history_1)
 
-            # 余额汇总
-            balance += stock_balance
-            end_price_a = price_a
-            end_price_b = price_b
-        exchange_times += 1
-        
-    # 2 - 买入a, 卖出b
-    elif res == 2:
-        if stock_b_num > EXCHANGE_NUM and exchange_times % EXCHANGE_INTERVAL == 0:
-            # 算卖出钱数
-            total = price_b * EXCHANGE_NUM
-            # 卖出
-            stock_b_num -= EXCHANGE_NUM
-            # 买入余额
-            stock_balance = total % price_a
-            # 买入数量
-            stock_a_num += (total - stock_balance) / price_a
-            print(date_a, date_b)
-            print("买入招商银行持仓: 招商银行：", stock_a_num, "宁波银行: ", stock_b_num, price_a, price_b)
+        return {
+            stock_codes[0]: stock_merge_list[0],
+            stock_codes[1]: stock_merge_list[1]
+        }
 
-            # 余额汇总
-            balance += stock_balance
-            end_price_a = price_a
-            end_price_b = price_b
-        exchange_times += 1
-        
-
-print("招商银行:", stock_a_num, "宁波银行:", stock_b_num, end_price_a, end_price_b, stock_a_num * end_price_a + stock_b_num * end_price_b + balance)
+# 执行脚本
+argv = sys.argv[1:]
+testing = stockBackTesting()
+testing.run(argv)
