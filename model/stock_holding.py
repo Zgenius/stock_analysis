@@ -1,4 +1,6 @@
 from model.stock import stock
+from context.market_context import marketContext
+import constant.eastmoney_constant as const
 
 class stock_holding(stock):
     # 持有数量
@@ -10,5 +12,9 @@ class stock_holding(stock):
     # 盈亏
     profit = 0.0
 
+    # 获取持仓市值
+    def getMarketValue(self):
+        return self.holding_num * self.getPrice()
+
     def __str__(self) -> str:
-        return self.code + ": " + str(self.holding_num)
+        return "{}({}): 数量{} 价格{}".format(self.name, self.code, str(self.holding_num), self.getPrice())

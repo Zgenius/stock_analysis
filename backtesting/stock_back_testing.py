@@ -4,6 +4,7 @@ import strategy.MeanReversionStrategyBaseResiduals as mr
 import sys
 from datetime import datetime
 from model.account import account
+from context.market_context import marketContext
 
 class stockBackTesting:
     # 时间范围
@@ -34,29 +35,38 @@ class stockBackTesting:
 
         # 初始化账户
         user_account = account(self.INIT_CASH)
+        print(user_account)
 
         # 获取股票共同交易的天数
         stock_length = stock_daily_history_0.shape[0]
 
         for i in range(self.START_OFFSET, stock_length):
+            date = stock_daily_history_0.at[i, const.DATE]
+
             # 获取收盘见
             price_0 = stock_daily_history_0.at[i, const.CLOSE_PRICE_KEY]
             price_1 = stock_daily_history_1.at[i, const.CLOSE_PRICE_KEY]
 
             # 基于残差的均值回归策略判断
             result = mr.mean_reversion(stock_daily_history_0[const.CLOSE_PRICE_KEY].iloc[0:i], stock_daily_history_1[const.CLOSE_PRICE_KEY].iloc[0:i])
+            if result != mr.BUY and result != mr.SELL:
+                continue
 
             if result == mr.BUY:
                 # 存在持仓股票，先卖出
                 user_account.sell(argv[0], price_0, self.EXCHANGE_NUM)
                 # 用现金买入
-                user_account.buy(argv[1], price_1, user_account.avilable_cash / price_1)
+                buy_result = user_account.buy(argv[1], price_1, user_account.avilable_cash / price_1)
+                if buy_result:
+                    print("日期：", date)
 
             elif result == mr.SELL:
                 # 存在持仓股票，先卖出
                 user_account.sell(argv[1], price_1, self.EXCHANGE_NUM)
                 # 用现金买入
-                user_account.buy(argv[0], price_0, user_account.avilable_cash / price_0)
+                buy_result = user_account.buy(argv[0], price_0, user_account.avilable_cash / price_0)
+                if buy_result:
+                    print("日期：", date)
 
         print(user_account)
     
