@@ -1,6 +1,7 @@
 import cair_stock as cs
 import constant.eastmoney_constant as const
 import strategy.MeanReversionStrategyBaseResiduals as mr
+import utils.util as util
 import sys
 from datetime import datetime
 from model.account import account
@@ -55,16 +56,20 @@ class stockBackTesting:
             if result == mr.BUY:
                 # 存在持仓股票，先卖出
                 user_account.sell(argv[0], price_0, self.EXCHANGE_NUM)
+                # 确定买入数量
+                number = util.can_buy_num(user_account.avilable_cash, price_1)
                 # 用现金买入
-                buy_result = user_account.buy(argv[1], price_1, user_account.avilable_cash / price_1)
+                buy_result = user_account.buy(argv[1], price_1, number)
                 if buy_result:
                     print("日期：", date)
 
             elif result == mr.SELL:
                 # 存在持仓股票，先卖出
                 user_account.sell(argv[1], price_1, self.EXCHANGE_NUM)
+                # 确定买入数量
+                number = util.can_buy_num(user_account.avilable_cash, price_0)
                 # 用现金买入
-                buy_result = user_account.buy(argv[0], price_0, user_account.avilable_cash / price_0)
+                buy_result = user_account.buy(argv[0], price_0, number)
                 if buy_result:
                     print("日期：", date)
 

@@ -4,6 +4,8 @@ import constant.eastmoney_constant as const
 import datetime
 
 class account:
+    # 最小单位
+    MIN_NUMBER = 100
     # 可用现金
     avilable_cash = 0
     # 持仓股票
@@ -16,6 +18,10 @@ class account:
     def buy(self, code, price, number):
         # 判空
         if number == 0 or price <= 0 or code == "":
+            return False
+
+        # 必须是100的整数倍
+        if number % self.MIN_NUMBER != 0:
             return False
 
         # 买入花销
@@ -53,6 +59,10 @@ class account:
     def sell(self, code, price, number):
         # 判空
         if number == 0 or price <= 0 or code == "":
+            return False
+        
+        # 必须是100的整数倍
+        if number % self.MIN_NUMBER != 0:
             return False
 
         # 没有持仓，就返回失败
