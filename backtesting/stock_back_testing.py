@@ -5,6 +5,7 @@ import utils.util as util
 import sys
 from datetime import datetime
 from model.account import account
+from model.timer import timer
 from context.market_context import marketContext
 
 class stockBackTesting:
@@ -28,6 +29,8 @@ class stockBackTesting:
         # 获取输入参数
         if len(argv) != 2:
             exit(0)
+
+        count_timer = timer()
 
         # 获取历史数据
         stock_history_dict = self.getStockHistory(argv, self.START_DATE, self.END_DATE)
@@ -53,25 +56,32 @@ class stockBackTesting:
             if result != mr.BUY and result != mr.SELL:
                 continue
 
-            if result == mr.BUY:
+            if result == mr.BUY and count_timer.getCount() % self.EXCHANGE_INTERVAL == 0:
                 # 存在持仓股票，先卖出
                 user_account.sell(argv[0], price_0, self.EXCHANGE_NUM)
                 # 确定买入数量
                 number = util.can_buy_num(user_account.avilable_cash, price_1)
                 # 用现金买入
                 buy_result = user_account.buy(argv[1], price_1, number)
+                # 从第一次买入或者卖出，就开启定时器
+                count_timer.on()
                 if buy_result:
                     print("日期：", date)
 
-            elif result == mr.SELL:
+            elif result == mr.SELL and count_timer.getCount() % self.EXCHANGE_INTERVAL == 0:
                 # 存在持仓股票，先卖出
                 user_account.sell(argv[1], price_1, self.EXCHANGE_NUM)
                 # 确定买入数量
                 number = util.can_buy_num(user_account.avilable_cash, price_0)
                 # 用现金买入
                 buy_result = user_account.buy(argv[0], price_0, number)
+                # 从第一次买入或者卖出，就开启定时器
+                count_timer.on()
                 if buy_result:
                     print("日期：", date)
+            
+            if count_timer.on_off:
+                count_timer.increment()
 
         print(user_account)
     
