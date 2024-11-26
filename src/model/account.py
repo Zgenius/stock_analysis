@@ -13,6 +13,7 @@ class account:
 
     def __init__(self, cash):
         self.avilable_cash = cash
+        self.holding_stocks = {}
 
     # 账户买入股票
     def buy(self, code, price, number):

@@ -16,9 +16,8 @@ stock_pair_list = [
     ]
 ]
 
-stock_back = st.stock_back_testing()
-
 for stock_code_pair in stock_pair_list:
+    stock_back = st.stock_back_testing()
     stock_back.run(stock_code_pair)
     split = ""
     for i in range(0, 100):
