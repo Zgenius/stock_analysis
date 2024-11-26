@@ -1,10 +1,10 @@
 import akshare as ak
-import cair_calculate as cc
+import utils.calculate_utils as cc
 import cointegration as co
-import cair_stock as cs
-import cair_fund as cf
+import utils.stock_utils as cs
+import utils.fund_utils as cf
 import constant.eastmoney_constant as const
-import strategy.MeanReversionStrategyBaseResiduals as mr
+import strategy.mean_reversion_strategy_base_residuals as mr
 
 # 股票编码A
 STOCK_CODE_A = "600036"

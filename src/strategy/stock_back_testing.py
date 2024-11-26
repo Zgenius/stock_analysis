@@ -1,6 +1,6 @@
-import cair_stock as cs
+import utils.stock_utils as cs
 import constant.eastmoney_constant as const
-import strategy.MeanReversionStrategyBaseResiduals as mr
+import strategy.mean_reversion_strategy_base_residuals as mr
 import utils.util as util
 import sys
 from datetime import datetime

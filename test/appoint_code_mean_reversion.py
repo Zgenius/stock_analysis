@@ -1,9 +1,9 @@
 import akshare as ak
-import cair_stock as cs
+import utils.stock_utils as cs
 import constant.eastmoney_constant as const
 import constant.fund_code_constant as fc
 import cointegration as co
-import strategy.MeanReversionStrategyBaseResiduals as mr
+import strategy.mean_reversion_strategy_base_residuals as mr
 import time
 
 # 最小上市交易日

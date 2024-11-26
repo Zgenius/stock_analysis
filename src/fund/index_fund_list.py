@@ -1,4 +1,4 @@
-import cair_stock as cs
+import utils.stock_utils as cs
 import sys
 
 # "上证系列指数", "深证系列指数", "指数成份", "中证系列指数"

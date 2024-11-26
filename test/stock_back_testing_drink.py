@@ -1,12 +1,12 @@
-import cair_stock as cs
+import utils.stock_utils as cs
 import constant.eastmoney_constant as const
-import strategy.MeanReversionStrategyBaseResiduals as mr
+import strategy.mean_reversion_strategy_base_residuals as mr
 from datetime import datetime
 
 # 股票编码A
-STOCK_CODE_A = "000651"
+STOCK_CODE_A = "000568"
 # 股票编码B
-STOCK_CODE_B = "000333"
+STOCK_CODE_B = "000858"
 
 # 时间范围
 START_DATE = "20080101"
@@ -38,11 +38,11 @@ end_price_b = 0
 balance = 0
 
 # 两次交易时间间隔
-EXCHANGE_INTERVAL = 10
+EXCHANGE_INTERVAL = 5
 # 交易次数
 exchange_times = 0
 
-print("格力电器:", 10000, "美的集团:", 10000, ini_price_a, ini_price_b, 10000 * ini_price_a + 10000 * ini_price_b)
+print("泸州老窖:", 10000, "五粮液:", 10000, ini_price_a, ini_price_b, 10000 * ini_price_a + 10000 * ini_price_b)
 stock_length = stock_daily_history_a.shape[0]
 for i in range(START_OFFSET, stock_length):
     res = mr.mean_reversion(stock_daily_history_a[const.CLOSE_PRICE_KEY].iloc[0:i], stock_daily_history_b[const.CLOSE_PRICE_KEY].iloc[0:i])
@@ -64,7 +64,7 @@ for i in range(START_OFFSET, stock_length):
             # 买入数量
             stock_b_num += (total - stock_balance) / price_b
             print(date_a, date_b)
-            print("买入美的集团持仓: 格力电器：", stock_a_num, "美的集团:", stock_b_num,  price_a, price_b)
+            print("买入五粮液持仓: 泸州老窖：", stock_a_num, "五粮液:", stock_b_num,  price_a, price_b)
 
             # 余额汇总
             balance += stock_balance
@@ -84,7 +84,7 @@ for i in range(START_OFFSET, stock_length):
             # 买入数量
             stock_a_num += (total - stock_balance) / price_a
             print(date_a, date_b)
-            print("买入格力电器持仓: 格力电器：", stock_a_num, "美的集团: ", stock_b_num, price_a, price_b)
+            print("买入泸州老窖持仓: 泸州老窖：", stock_a_num, "五粮液: ", stock_b_num, price_a, price_b)
 
             # 余额汇总
             balance += stock_balance
@@ -93,4 +93,4 @@ for i in range(START_OFFSET, stock_length):
         exchange_times += 1
         
 
-print("格力电器:", stock_a_num, "美的集团:", stock_b_num, end_price_a, end_price_b, stock_a_num * end_price_a + stock_b_num * end_price_b + balance)
+print("泸州老窖:", stock_a_num, "五粮液:", stock_b_num, end_price_a, end_price_b, stock_a_num * end_price_a + stock_b_num * end_price_b + balance)
