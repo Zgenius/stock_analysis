@@ -2,13 +2,11 @@ import utils.stock_utils as cs
 import constant.eastmoney_constant as const
 import strategy.mean_reversion_strategy_base_residuals as mr
 import utils.util as util
-import sys
 from datetime import datetime
 from model.account import account
 from model.timer import timer
-from context.market_context import marketContext
 
-class stockBackTesting:
+class stock_back_testing:
     # 时间范围
     START_DATE = "20080101"
     END_DATE = datetime.now().strftime("%Y%m%d")
@@ -102,8 +100,3 @@ class stockBackTesting:
             stock_codes[0]: stock_merge_list[0],
             stock_codes[1]: stock_merge_list[1]
         }
-
-# 执行脚本
-argv = sys.argv[1:]
-testing = stockBackTesting()
-testing.run(argv)

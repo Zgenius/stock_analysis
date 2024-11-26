@@ -73,13 +73,10 @@ def mean_reversion(stock1, stock2):
     # print(f"ADF检验的p值: {adf_result[1]}")
 
     # 判断是否具有协整关系
-    if adf_result[1] < 0.05:
-        print("两只股票具有协整关系。")
-    else:
-        # print("两只股票不具有协整关系。")
+    if adf_result[1] >= 0.05:
         return -1
 
-    print(f"ADF检验的p值: {adf_result[1]}")
+    # print(f"ADF检验的p值: {adf_result[1]}")
 
     # 计算价差（回归残差）
     spread = residuals
@@ -88,10 +85,10 @@ def mean_reversion(stock1, stock2):
     spread_mean = spread.mean()
     spread_std = spread.std()
 
-    print("价差的均值:{:.15f}".format(spread_mean))
+    # print("价差的均值:{:.15f}".format(spread_mean))
     # print(f"价差的均值: {spread_mean}")
     # print(f"价差的标准差: {spread_std}")
-    print("价差的标准差:{:.15f}".format(spread_std))
+    # print("价差的标准差:{:.15f}".format(spread_std))
 
     # 基于均值和标准差进行交易决策
     threshold_up = spread_mean + 2 * spread_std
@@ -99,13 +96,13 @@ def mean_reversion(stock1, stock2):
 
     # 假设策略：当价差超过2倍标准差时买入/卖出
     if spread.get(spread.size - 1) > threshold_up:
-        print("卖出信号：价差大于均值 + 2标准差")
+        # print("卖出信号：价差大于均值 + 2标准差")
         return 2
     elif spread.get(spread.size - 1) < threshold_down:
-        print("买入信号：价差小于均值 - 2标准差")
+        # print("买入信号：价差小于均值 - 2标准差")
         return 1
     else:
-        print("没有信号，保持观望")
+        # print("没有信号，保持观望")
         return 0
 
 # 下载两只股票的历史数据
