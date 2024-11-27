@@ -1,4 +1,4 @@
-import utils.stock_utils as cs
+import utils.stock_utils as su
 import sys
 
 # "上证系列指数", "深证系列指数", "指数成份", "中证系列指数"
@@ -11,7 +11,7 @@ else:
     index_fund_category = "指数成份"
 
 
-index_list = cs.index_list()
+index_list = su.index_list()
 
 for index, row in index_list.iterrows():
     print(index, row["代码"], row["名称"])

@@ -1,4 +1,4 @@
-import utils.stock_utils as cs
+import utils.stock_utils as su
 import constant.eastmoney_constant as const
 import strategy.mean_reversion_strategy_base_residuals as mr
 import utils.util as util
@@ -90,11 +90,11 @@ class stock_back_testing:
             return {}
 
         # 股票A的每日历史信息
-        stock_daily_history_0 = cs.stock_daily_history(stock_codes[0], start_date, end_date)
-        stock_daily_history_1 = cs.stock_daily_history(stock_codes[1], start_date, end_date)
+        stock_daily_history_0 = su.stock_daily_history(stock_codes[0], start_date, end_date)
+        stock_daily_history_1 = su.stock_daily_history(stock_codes[1], start_date, end_date)
 
         # 计算有共同时间的历史数据
-        stock_merge_list = cs.sync_data_list(stock_daily_history_0, stock_daily_history_1)
+        stock_merge_list = su.sync_data_list(stock_daily_history_0, stock_daily_history_1)
 
         return {
             stock_codes[0]: stock_merge_list[0],

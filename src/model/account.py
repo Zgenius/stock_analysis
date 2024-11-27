@@ -1,5 +1,5 @@
 from model.stock_holding import stock_holding
-from context.market_context import marketContext
+from context.market_context import market_context
 import constant.eastmoney_constant as const
 import datetime
 
@@ -41,7 +41,7 @@ class account:
             # 初始化持仓股票
             buy_stock = stock_holding()
             buy_stock.code = code
-            buy_stock.name = marketContext.STOCK_CODE_2_INFO[code][const.STOCK_NAME]
+            buy_stock.name = market_context.STOCK_CODE_2_INFO[code][const.STOCK_NAME]
             buy_stock.holding_num = number
             buy_stock.buy_price = price
             buy_stock.buy_date = datetime.datetime.now()

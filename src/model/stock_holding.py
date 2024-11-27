@@ -1,5 +1,5 @@
 from model.stock import stock
-from context.market_context import marketContext
+from context.market_context import market_context
 import constant.eastmoney_constant as const
 
 class stock_holding(stock):

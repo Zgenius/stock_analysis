@@ -1,7 +1,7 @@
 import statsmodels.api as sm
 import constant.constant as constant
 from statsmodels.tsa.stattools import adfuller
-import utils.stock_utils as cs
+import utils.stock_utils as su
 import constant.eastmoney_constant as const
 import strategy.mean_reversion_strategy_base_residuals as mr
 import time
@@ -13,7 +13,7 @@ HOLDING = 0
 
 def index_fund_mean_reversion(symbol_code, start_date, end_date):
     # 获取给定基金的成分信息
-    stocks = cs.index_contain_stocks(symbol_code);
+    stocks = su.index_contain_stocks(symbol_code);
 
     # 构造代码到信息的映射表
     stock_code_2_info = {}
@@ -30,12 +30,12 @@ def index_fund_mean_reversion(symbol_code, start_date, end_date):
             stock_code_b = stock_codes[j]
 
             # 获取基础信息
-            stock_daily_history_a = cs.stock_daily_history(stock_code_a, start_date, end_date)
-            stock_daily_history_b = cs.stock_daily_history(stock_code_b, start_date, end_date)
+            stock_daily_history_a = su.stock_daily_history(stock_code_a, start_date, end_date)
+            stock_daily_history_b = su.stock_daily_history(stock_code_b, start_date, end_date)
             if len(stock_daily_history_a) <= constant.MIN_EXCHANGE_DAY_NUM or len(stock_daily_history_b) <= constant.MIN_EXCHANGE_DAY_NUM:
                 continue
 
-            stock_merge_list = cs.sync_data_list(stock_daily_history_a, stock_daily_history_b)
+            stock_merge_list = su.sync_data_list(stock_daily_history_a, stock_daily_history_b)
             stock_daily_history_a = stock_merge_list[0]
             stock_daily_history_b = stock_merge_list[1]
 
