@@ -1,4 +1,4 @@
-import utils.calculate_utils as cc
+import utils.calculate_utils as cu
 import constant.eastmoney_constant as const
 import akshare as ak
 
@@ -6,11 +6,10 @@ import akshare as ak
 def stock_list(): 
     return ak.stock_zh_a_spot_em()
 
-
 # 去掉不一致的日期数据
 def sync_data_list(stocks_a, stocks_b):
     # 只有都存在的日期才可以进行计算
-    intersection_date_set = cc.calculate_intersection_set(stocks_a[const.DATE], stocks_b[const.DATE])
+    intersection_date_set = cu.calculate_intersection_set(stocks_a[const.DATE], stocks_b[const.DATE])
 
     stocks_intersection_a = filter_data(stocks_a, intersection_date_set)
     stocks_intersection_b = filter_data(stocks_b, intersection_date_set)
@@ -40,3 +39,12 @@ def index_contain_stocks(symbol_code = "00300"):
 # 获取股票历史每天数据
 def stock_daily_history(symbol_code, start_date, end_date):
     return ak.stock_zh_a_hist(symbol=symbol_code, period="daily", start_date=start_date, end_date=end_date, adjust="qfq")
+
+# 获取个股的基础信息
+# 包括： 总市值，流通市值，行业，上市时间，股票代码，股票简称，总股本，流通股
+def stock_individual_info(symbol):
+    return ak.stock_individual_info_em(symbol)
+
+# 获取个股的基本信息的一个字段
+def stock_individual_info_get(stock_info, key):
+    return stock_info[stock_info["item"].eq(key)]["value"].iloc[0]

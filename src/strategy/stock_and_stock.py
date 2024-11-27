@@ -1,8 +1,4 @@
-import akshare as ak
-import utils.calculate_utils as cc
-import cointegration as co
 import utils.stock_utils as cs
-import utils.fund_utils as cf
 import constant.eastmoney_constant as const
 import strategy.mean_reversion_strategy_base_residuals as mr
 
