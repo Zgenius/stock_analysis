@@ -1,7 +1,7 @@
 from model.stock_holding import stock_holding
 from context.market_context import market_context
 import constant.eastmoney_constant as const
-import datetime
+from datetime import datetime
 
 class account:
     # 最小单位
@@ -16,7 +16,7 @@ class account:
         self.holding_stocks = {}
 
     # 账户买入股票
-    def buy(self, code, price, number):
+    def buy(self, code, price, number, date = datetime.now()):
         # 判空
         if number == 0 or price <= 0 or code == "":
             return False
@@ -44,7 +44,7 @@ class account:
             buy_stock.name = market_context.STOCK_CODE_2_INFO[code][const.STOCK_NAME]
             buy_stock.holding_num = number
             buy_stock.buy_price = price
-            buy_stock.buy_date = datetime.datetime.now()
+            buy_stock.buy_date = date
 
         # 减去现金
         self.avilable_cash -= cost_amount

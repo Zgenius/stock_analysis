@@ -53,6 +53,11 @@ def stock_daily_history(symbol_code, start_date, end_date):
 def stock_individual_info(symbol):
     return ak.stock_individual_info_em(symbol)
 
+# 获取个股的一些财务指标
+# 包括： pe pe_ttm pb ps ps_ttm dv_ratio dv_ttm total_mv
+def stock_individual_indicator(symbol):
+    return ak.stock_a_indicator_lg(symbol)
+
 # 获取个股的基本信息的一个字段
 def stock_individual_info_get(stock_info, key):
     return stock_info[stock_info["item"].eq(key)]["value"].iloc[0]
