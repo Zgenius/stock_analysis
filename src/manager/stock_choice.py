@@ -66,12 +66,12 @@ def stock_choice():
 
         # 记录下满足条件的编码
         stock_codes.append(cu.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_CODE))
-    print(stock_codes)
+    # print(stock_codes)
 
     satisfied_ROE_stock_codes = []
     # 获取股票每年的ROE
     stock_code_2_date_ROE = sim.stock_ROE(stock_codes, annual_report_dates)
-    print(stock_code_2_date_ROE)
+    # print(stock_code_2_date_ROE)
     for index, stock_code in enumerate(stock_codes):
         if stock_code not in stock_code_2_date_ROE:
             continue

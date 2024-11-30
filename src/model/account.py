@@ -115,3 +115,33 @@ class account:
         
         return template + holding
         
+    # 获取某个日期的总市值
+    def get_market_value_date(self, stock_code_2_history_info, date):
+        market_value = 0.0
+        for index in self.holding_stocks:
+            stock = self.holding_stocks[index]
+            stock_history_info = stock_code_2_history_info[index]
+            date_hitory = stock_history_info[stock_history_info[const.DATE] == date]
+            if date_hitory.empty:
+                continue
+
+            # 获取收盘价格
+            close_price = date_hitory.get(const.CLOSE_PRICE_KEY).item()
+
+            market_value += close_price * stock.holding_num
+
+        return market_value + self.avilable_cash
+
+    # 获取持仓占比
+    def stock_percentage(self, stock_code, stock_code_2_history_info, date):
+        total_value = self.get_market_value_date(stock_code_2_history_info, date)
+        stock_history_info = stock_code_2_history_info[stock_code]
+        date_hitory = stock_history_info[stock_history_info[const.DATE] == date]
+        if date_hitory.empty:
+            return 0
+
+        # 获取收盘价格
+        close_price = date_hitory.get(const.CLOSE_PRICE_KEY).item()
+        stock = self.holding_stocks[stock_code]
+
+        return close_price * stock.holding_num / total_value

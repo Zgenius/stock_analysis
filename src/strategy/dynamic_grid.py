@@ -25,29 +25,30 @@ def get_date(dateStr):
     return date
 
 # 时间范围
-START_DATE = "20150101"
+START_DATE = "20220101"
 END_DATE = datetime.now().strftime("%Y%m%d")
 
 # 选股
 # stock_codes = sc.stock_choice()
+# print(stock_codes)
 # 当天的结果已经有了
 stock_codes = [
     "000333",
     "000651",
     "000661",
     "002304",
-    # "002415",
-    # "300628",
+    "002415",
+    "300628",
     "600036",
-    # "600519",
-    # "600563",
-    # "600690",
-    # "600885",
-    # "600887",
-    # "603288",
-    # "603605",
-    # "603833",
-    # "603899"
+    "600519",
+    "600563",
+    "600690",
+    "600885",
+    "600887",
+    "603288",
+    "603605",
+    "603833",
+    "603899"
 ]
 
 # 初始化账户
@@ -106,8 +107,9 @@ for day in days:
         if close_price <= 0:
             continue
 
-        # 确定买入数量，第一次建仓买入十分之一
-        number = util.can_buy_num(50000, close_price)
+        total_value = user_account.get_market_value_date(stock_code_2_history_info, date)
+        # 确定买入数量，第一次建仓买入不超过2%总资产
+        number = util.can_buy_num(total_value / 50, close_price)
 
         # 没有持仓，并且估值分位小于70%，就买入第一笔
         if stock_code not in table.stock_code_2_records and percentile < 70:
@@ -145,7 +147,8 @@ for day in days:
                 min_sell_price = table.get_min_sell_price(stock_code, date)
                 # 如果没有持仓了，返回0，股价不可能小于0，所以这里的条件无法出发，不会买入
                 buy_price = min_sell_price * 0.925
-                if close_price <= buy_price and percentile < 70:
+                stock_percentage = (user_account.holding_stocks[stock_code].holding_num * close_price) / total_value
+                if close_price <= buy_price and percentile < 70 and stock_percentage < 0.1:
                     buy_result = user_account.buy(stock_code, close_price, number)
                     if not buy_result:
                         continue
@@ -160,3 +163,6 @@ for day in days:
 
 print(user_account)
 print("网格总盈利： ", table.get_total_profit())
+print("年度盈利: ", table.get_profit_statistics())
+print("年度个股盈利: ", table.get_stock_profit_statistics())
+exit(0)

@@ -87,3 +87,36 @@ class grid_table:
             total_profit += record.profit
         
         return total_profit
+
+    # 获取每年盈利金额
+    def get_profit_statistics(self):
+        year_2_statistics = {}
+        for record in self.handled_records:
+            year = record.sell_date.year
+            if year not in year_2_statistics:
+                year_2_statistics[year] = 0
+            
+            statistics = year_2_statistics[year]
+            statistics += record.profit
+            year_2_statistics[year] = statistics
+        
+        return year_2_statistics
+
+    # 获取每年盈利金额
+    def get_stock_profit_statistics(self):
+        year_2_stock_statistics = {}
+        for record in self.handled_records:
+            year = record.sell_date.year
+            if year not in year_2_stock_statistics:
+                year_2_stock_statistics[year] = {}
+            
+            stock_statistics = year_2_stock_statistics[year]
+            if record.code not in stock_statistics:
+                stock_statistics[record.code] = 0
+            
+            statistics = stock_statistics[record.code]
+            statistics += record.profit
+            stock_statistics[record.code] = statistics
+            year_2_stock_statistics[year] = stock_statistics
+        
+        return year_2_stock_statistics
