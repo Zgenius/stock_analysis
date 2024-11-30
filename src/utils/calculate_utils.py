@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from datetime import datetime
+from datetime import timedelta
  
 # 计算给定列表的标准差
 def calculate_std_dev(numbers):
@@ -32,3 +32,26 @@ def get_sell_point(stock, date):
         month_number = 1
 
     return (month_number * ideal_profit_rate_month + 1) * stock.buy_price
+
+# 计算估值分位
+def valuation_percentile(indicator, date, key, value):
+    start_date = date - timedelta(days = 365 * 5)
+    indicator_data = indicator[indicator["trade_date"] >= start_date]
+    indicator_data = indicator_data[indicator_data["trade_date"] <= date]
+    # 获取范围内估值指标所有的数据列表
+    valuation_list = indicator_data.get(key)
+
+    min = valuation_list.min()
+    max = valuation_list.max()
+
+    if min <= 0:
+        min = 0
+    
+    if max <= 0:
+        max = 0
+    
+    if max - min == 0:
+        return 100
+    
+    # 计算估值百分位
+    return (value - min) / (max - min) * 100

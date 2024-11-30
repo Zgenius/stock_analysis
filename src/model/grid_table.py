@@ -78,3 +78,10 @@ class grid_table:
         
         return min_sell_price
             
+    # 获取总盈利
+    def get_total_profit(self):
+        total_profit = 0
+        for record in self.handled_records:
+            total_profit += record.profit
+        
+        return total_profit

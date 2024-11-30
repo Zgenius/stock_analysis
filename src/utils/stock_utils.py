@@ -46,7 +46,9 @@ def index_contain_stocks(symbol_code = "00300"):
 
 # 获取股票历史每天数据
 def stock_daily_history(symbol_code, start_date, end_date):
-    return ak.stock_zh_a_hist(symbol=symbol_code, period="daily", start_date=start_date, end_date=end_date, adjust="qfq")
+    # return ak.stock_zh_a_hist(symbol=symbol_code, period="daily", start_date=start_date, end_date=end_date, adjust="qfq")
+    # return ak.stock_zh_a_hist(symbol=symbol_code, period="daily", start_date=start_date, end_date=end_date, adjust="hfq")
+    return ak.stock_zh_a_hist(symbol=symbol_code, period="daily", start_date=start_date, end_date=end_date)
 
 # 获取个股的基础信息
 # 包括： 总市值，流通市值，行业，上市时间，股票代码，股票简称，总股本，流通股

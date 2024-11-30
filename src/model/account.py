@@ -75,10 +75,13 @@ class account:
         if holding_stock.holding_num < number:
             return False
         
+        # 卖出现金
+        sell_cash = price * number
+       
         # 卖出之后，剩余持仓
         holding_stock.holding_num -= number
         # 股票卖出，增加现金
-        self.avilable_cash += price * number
+        self.avilable_cash += sell_cash
 
         # 如果还有持仓，更新下数据
         if holding_stock.holding_num != 0:
