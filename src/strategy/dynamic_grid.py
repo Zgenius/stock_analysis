@@ -4,6 +4,8 @@ import utils.calculate_utils as cu
 import constant.eastmoney_constant as const
 import utils.util as util
 import copy
+import utils.date_utils as du
+import time
 from model.account import account
 from datetime import datetime
 from model.grid_table import grid_table
@@ -23,7 +25,7 @@ def get_date(dateStr):
     return date
 
 # 时间范围
-START_DATE = "20160101"
+START_DATE = "20150101"
 END_DATE = datetime.now().strftime("%Y%m%d")
 
 # 选股
@@ -34,64 +36,81 @@ stock_codes = [
     "000651",
     "000661",
     "002304",
-    "002415",
-    "300628",
+    # "002415",
+    # "300628",
     "600036",
-    "600519",
-    "600563",
-    "600690",
-    "600885",
-    "600887",
-    "603288",
-    "603605",
-    "603833",
-    "603899"
+    # "600519",
+    # "600563",
+    # "600690",
+    # "600885",
+    # "600887",
+    # "603288",
+    # "603605",
+    # "603833",
+    # "603899"
 ]
 
+# 初始化账户
+user_account = account(1000000)
+print(user_account)
+
+# 初始化网格记录表
+table = grid_table()
+
+# 记录股票编码到指标类信息的映射
+stock_code_2_indicator = {}
+# 股票编码到历史数据的映射表
+stock_code_2_history_info = {}
 for stock_code in stock_codes:
     # 获取pe等基础信息
-    stock_indicator = su.stock_individual_indicator(stock_code)
+    stock_code_2_indicator[stock_code] = su.stock_individual_indicator(stock_code)
+    stock_code_2_history_info[stock_code] = su.stock_daily_history(stock_code, START_DATE, END_DATE)
+    time.sleep(1)
 
-    # 初始化账户
-    user_account = account(1000000)
-    print(user_account)
+days = du.get_between_days(START_DATE, END_DATE)
+for day in days:
+    date = day.date()
+    for stock_code in stock_codes:
+        # 不存在指标信息，就过滤
+        if stock_code not in stock_code_2_indicator:
+            continue
 
-    # 动态网格记录
-    grid_records = []
-    # 初始化网格记录表
-    table = grid_table()
+        # 不存在历史信息就过滤
+        if stock_code not in stock_code_2_history_info:
+            continue
 
-    # 获取历史每天的信息
-    stock_daily_history = su.stock_daily_history(stock_code, START_DATE, END_DATE)
-    for index, stock_daily_info in stock_daily_history.iterrows():
-        # 日期
-        date = get_date(stock_daily_info[const.DATE])
+        # 获取pe等基础信息
+        stock_indicator = stock_code_2_indicator[stock_code]
 
-        pe_ttm = stock_indicator[stock_indicator["trade_date"] == date].get("pe_ttm").item()
-        # if pe_ttm > 15:
-        #     continue
+        # 获取历史每天的信息
+        stock_daily_history = stock_code_2_history_info[stock_code]
+
+        date_indicator = stock_indicator[stock_indicator["trade_date"] == date]
+        if date_indicator.empty:
+            continue
+
+        # 获取PE_TTM
+        pe_ttm = date_indicator.get("pe_ttm").item()
+
         # 估值分位
         percentile = cu.valuation_percentile(stock_indicator, date, "pe_ttm", pe_ttm)
 
-        # 价格
-        close_price = stock_daily_info[const.CLOSE_PRICE_KEY]
-        # 涨跌幅，过大，说明数据有问题
-        if stock_daily_info["涨跌幅"] > 15:
+        date_hitory = stock_daily_history[stock_daily_history[const.DATE] == date]
+        if date_hitory.empty:
             continue
+
+        # 获取收盘价格
+        close_price = date_hitory.get(const.CLOSE_PRICE_KEY).item()
 
         # 小于0的过滤掉
         if close_price <= 0:
             continue
 
-        cash = user_account.avilable_cash
-        if stock_code in user_account.holding_stocks:
-            cash += user_account.holding_stocks[stock_code].holding_num * close_price
-
         # 确定买入数量，第一次建仓买入十分之一
-        number = util.can_buy_num(cash / 50, close_price)
+        number = util.can_buy_num(50000, close_price)
 
-        # 首次买入
-        if table.length == 0 and percentile < 70:
+        # 没有持仓，并且估值分位小于70%，就买入第一笔
+        if stock_code not in table.stock_code_2_records and percentile < 70:
             buy_result = user_account.buy(stock_code, close_price, number, date)
             if not buy_result:
                 continue
@@ -139,7 +158,5 @@ for stock_code in stock_codes:
                     table.add(stock)
                     continue
 
-    
-    print(user_account)
-    print("网格总盈利： ", table.get_total_profit())
-    exit(0)
+print(user_account)
+print("网格总盈利： ", table.get_total_profit())

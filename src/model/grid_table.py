@@ -46,6 +46,8 @@ class grid_table:
     def remove(self, stock, index):
         # 清理记录
         del self.stock_code_2_records[stock.code][index]
+        if len(self.stock_code_2_records[stock.code]) == 0:
+            del self.stock_code_2_records[stock.code]
 
         self.length -= 1
         self.stock_code_2_valid_number[stock.code] -= 1
@@ -53,7 +55,7 @@ class grid_table:
 
     # 获取股票网格记录列表
     def get_records(self, stock_code):
-        if stock_code not in self.stock_code_2_valid_number:
+        if stock_code not in self.stock_code_2_records:
             return []
         return self.stock_code_2_records[stock_code]
 

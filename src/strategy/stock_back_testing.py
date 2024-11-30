@@ -6,6 +6,9 @@ from datetime import datetime
 from model.account import account
 from model.timer import timer
 
+"""
+均值回归策略
+"""
 class stock_back_testing:
     # 时间范围
     START_DATE = "20080101"
