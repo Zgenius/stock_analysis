@@ -10,6 +10,7 @@ from model.account import account
 from datetime import datetime
 
 """
+动态仓位
 精选股票，根据pe百分位动态调整仓位
 pe百分位每增长10%，就相应的减少仓位
 pe百分位每减少10%，就相应增加仓位
@@ -17,7 +18,7 @@ pe百分位每减少10%，就相应增加仓位
 """
 
 # 时间范围
-START_DATE = "20190101"
+START_DATE = "20150101"
 END_DATE = datetime.now().strftime("%Y%m%d")
 
 HOLDING_POSITION = {

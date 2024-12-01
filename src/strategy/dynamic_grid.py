@@ -17,7 +17,7 @@ from model.grid_table import grid_table
 
 GRID_RATE = 50
 # 时间范围
-START_DATE = "20170101"
+START_DATE = "20150101"
 END_DATE = datetime.now().strftime("%Y%m%d")
 
 # 选股
@@ -121,7 +121,7 @@ for day in days:
         stock_holding_grid_number = len(grid_records)
         for grid_record_key, grid_record in enumerate(grid_records):
             # 获取卖点价格
-            sell_price = cu.get_sell_point(grid_record['stock'], date)
+            sell_price = cu.get_sell_point_v2(grid_record['stock'], date)
             # 满足卖点或者持仓超过3年没有满足
             # if (close_price >= sell_price) or du.get_interval_days(grid_record["stock"].buy_date, date) > 365 * 5:
             if (close_price >= sell_price):

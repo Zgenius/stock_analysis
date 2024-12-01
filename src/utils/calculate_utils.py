@@ -33,6 +33,22 @@ def get_sell_point(stock, date):
 
     return (month_number * ideal_profit_rate_month + 1) * stock.buy_price
 
+
+# 获取卖点精确
+def get_sell_point_v2(stock, date):
+    if stock.code == "":
+        return 0.0
+    
+    # 每年28%的收益率,每个月的收益率
+    ideal_profit_rate_day = 0.28 / 365
+    # 买入时间到输入时间一共经历多少天
+    delta = (date - stock.buy_date).days
+    # 如果时间小于1个月，算一个月
+    if delta < 30:
+        delta = 30
+
+    return (delta * ideal_profit_rate_day + 1) * stock.buy_price
+
 # 计算估值分位
 def valuation_percentile(indicator, date, key, value):
     start_date = date - timedelta(days = 365 * 5)
