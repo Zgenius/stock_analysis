@@ -15,3 +15,14 @@ def get_between_days(start_date, end_date):
         current_date += timedelta(days=1)
     
     return days
+
+
+# 通过字符串或者int获取datetime对象
+def get_date(dateStr):
+    if type(dateStr) == str:
+        date = datetime.strptime(dateStr, "%Y%m%d")
+    elif type(dateStr) == int:
+        date = datetime.strptime(str(dateStr), "%Y%m%d")
+    else:
+        date = dateStr
+    return date

@@ -1,5 +1,8 @@
-import utils.stock_utils as su
-import utils.date_utils as du
+BUY_SELL_PAIR = {
+    0: 99,
+    10: 90,
+    20: 80,
+    30: 70
+}
 
-print(du.get_between_days("20240101", "20240130"))
-# print(su.stock_daily_history("000333", "20160101", "20241130"))
+print(dict(zip(BUY_SELL_PAIR.values(), BUY_SELL_PAIR.keys())))

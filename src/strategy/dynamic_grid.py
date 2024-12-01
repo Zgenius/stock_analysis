@@ -14,18 +14,8 @@ from model.grid_table import grid_table
 动态网格策略回测
 """
 
-# 通过字符串或者int获取datetime对象
-def get_date(dateStr):
-    if type(dateStr) == str:
-        date = datetime.strptime(dateStr, "%Y%m%d")
-    elif type(dateStr) == int:
-        date = datetime.strptime(str(dateStr), "%Y%m%d")
-    else:
-        date = dateStr
-    return date
-
 # 时间范围
-START_DATE = "20220101"
+START_DATE = "20160101"
 END_DATE = datetime.now().strftime("%Y%m%d")
 
 # 选股
