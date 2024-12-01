@@ -10,11 +10,11 @@ from model.account import account
 from datetime import datetime
 
 """
-金字塔网格
+buy and hold 低估分批买入，高估分批卖出
 """
 
 # 时间范围
-START_DATE = "20160101"
+START_DATE = "20150101"
 END_DATE = datetime.now().strftime("%Y%m%d")
 
 BUY_POSITION = {

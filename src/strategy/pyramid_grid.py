@@ -10,7 +10,10 @@ from model.account import account
 from datetime import datetime
 
 """
-金字塔网格
+精选股票，根据pe百分位动态调整仓位
+pe百分位每增长10%，就相应的减少仓位
+pe百分位每减少10%，就相应增加仓位
+实现高抛低吸，而且不至于在震荡市场没有收益
 """
 
 # 时间范围
