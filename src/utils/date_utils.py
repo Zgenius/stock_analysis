@@ -26,3 +26,7 @@ def get_date(dateStr):
     else:
         date = dateStr
     return date
+
+# 获取两个时间差距多少天
+def get_interval_days(start_date, end_date):
+    return (end_date - start_date).days

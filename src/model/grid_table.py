@@ -111,12 +111,12 @@ class grid_table:
                 year_2_stock_statistics[year] = {}
             
             stock_statistics = year_2_stock_statistics[year]
-            if record.code not in stock_statistics:
-                stock_statistics[record.code] = 0
+            if record.name not in stock_statistics:
+                stock_statistics[record.name] = 0
             
-            statistics = stock_statistics[record.code]
+            statistics = stock_statistics[record.name]
             statistics += record.profit
-            stock_statistics[record.code] = statistics
+            stock_statistics[record.name] = statistics
             year_2_stock_statistics[year] = stock_statistics
         
         return year_2_stock_statistics

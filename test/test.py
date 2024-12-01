@@ -1,8 +1,7 @@
-BUY_SELL_PAIR = {
-    0: 99,
-    10: 90,
-    20: 80,
-    30: 70
-}
+import utils.date_utils as du
+import datetime
 
-print(dict(zip(BUY_SELL_PAIR.values(), BUY_SELL_PAIR.keys())))
+date1 = datetime.datetime(2023, 1, 1).date()
+date2 = datetime.datetime(2023, 1, 15).date()
+
+print(du.get_interval_days(date1, date2))

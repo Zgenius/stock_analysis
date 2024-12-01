@@ -159,6 +159,11 @@ for day in days:
                 # 之前买过并且还没卖，就放弃这个比例的购买，说明买过了
                 if pe_percentile in stock_code_2_buy_rate[stock_code] and BUY_SELL_PAIR[pe_percentile] not in stock_code_2_sell_rate[stock_code]:
                     continue
+
+                # pe太高的不买
+                if pe_ttm > 30:
+                    continue
+
                 # 买入比例
                 buy_rate = BUY_POSITION[pe_percentile] / 100
 
@@ -180,6 +185,10 @@ for day in days:
             if percentile >= pe_percentile:
                 # 已经卖出过了或者没有买入，就过滤
                 if pe_percentile in stock_code_2_sell_rate[stock_code] or SELL_BUY_PAIR[pe_percentile] not in stock_code_2_buy_rate[stock_code]:
+                    continue
+
+                # pe太低的不卖
+                if pe_ttm < 10:
                     continue
 
                 sell_rate = SELL_POSITION[pe_percentile] / 100

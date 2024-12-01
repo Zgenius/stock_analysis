@@ -6,6 +6,7 @@ import utils.util as util
 import copy
 import utils.date_utils as du
 import time
+import json
 from model.account import account
 from datetime import datetime
 from model.grid_table import grid_table
@@ -14,8 +15,9 @@ from model.grid_table import grid_table
 动态网格策略回测
 """
 
+GRID_RATE = 50
 # 时间范围
-START_DATE = "20160101"
+START_DATE = "20170101"
 END_DATE = datetime.now().strftime("%Y%m%d")
 
 # 选股
@@ -99,10 +101,10 @@ for day in days:
 
         total_value = user_account.get_market_value_date(stock_code_2_history_info, date)
         # 确定买入数量，第一次建仓买入不超过2%总资产
-        number = util.can_buy_num(total_value / 50, close_price)
+        number = util.can_buy_num(total_value / GRID_RATE, close_price)
 
         # 没有持仓，并且估值分位小于70%，就买入第一笔
-        if stock_code not in table.stock_code_2_records and percentile < 70:
+        if stock_code not in table.stock_code_2_records and percentile < 70 and pe_ttm < 30:
             buy_result = user_account.buy(stock_code, close_price, number, date)
             if not buy_result:
                 continue
@@ -116,10 +118,13 @@ for day in days:
             continue
 
         grid_records = table.get_records(stock_code)
+        stock_holding_grid_number = len(grid_records)
         for grid_record_key, grid_record in enumerate(grid_records):
             # 获取卖点价格
             sell_price = cu.get_sell_point(grid_record['stock'], date)
-            if close_price >= sell_price:
+            # 满足卖点或者持仓超过3年没有满足
+            # if (close_price >= sell_price) or du.get_interval_days(grid_record["stock"].buy_date, date) > 365 * 5:
+            if (close_price >= sell_price):
                 # 满足卖点，卖出
                 sell_result = user_account.sell(stock_code, close_price, grid_record['stock'].holding_num)
                 if not sell_price:
@@ -138,7 +143,7 @@ for day in days:
                 # 如果没有持仓了，返回0，股价不可能小于0，所以这里的条件无法出发，不会买入
                 buy_price = min_sell_price * 0.925
                 stock_percentage = (user_account.holding_stocks[stock_code].holding_num * close_price) / total_value
-                if close_price <= buy_price and percentile < 70 and stock_percentage < 0.1:
+                if close_price <= buy_price and percentile < 70 and stock_percentage < 0.08 and pe_ttm < 30:
                     buy_result = user_account.buy(stock_code, close_price, number)
                     if not buy_result:
                         continue
@@ -153,6 +158,6 @@ for day in days:
 
 print(user_account)
 print("网格总盈利： ", table.get_total_profit())
-print("年度盈利: ", table.get_profit_statistics())
-print("年度个股盈利: ", table.get_stock_profit_statistics())
+print("年度盈利: ", json.dumps(table.get_profit_statistics(), indent=4, ensure_ascii = False))
+print("年度个股盈利: ", json.dumps(table.get_stock_profit_statistics(), indent=4, ensure_ascii = False))
 exit(0)
