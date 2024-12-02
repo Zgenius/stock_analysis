@@ -128,6 +128,7 @@ def ex_rights(stock_code, user_account, grid_table, ex_right_info, date):
             stock.holding_num = stock.holding_num * right_issue_rate
             # 更新进持仓
             user_account.holding_stocks[stock_code] = stock
+            print("{}({})".format(stock.name, stock.code), "配股除权，每股配股: ", right_issue)
 
         # 网格交易表存在持仓，进行除权处理
         if stock_code in grid_table.stock_code_2_records:
