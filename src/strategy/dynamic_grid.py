@@ -104,7 +104,7 @@ for day in days:
         number = util.can_buy_num(total_value / GRID_RATE, close_price)
 
         # 没有持仓，并且估值分位小于70%，就买入第一笔
-        if stock_code not in table.stock_code_2_records and percentile < 70 and pe_ttm < 30:
+        if stock_code not in table.stock_code_2_records and percentile < 70 and pe_ttm < 30 and pe_ttm > 0:
             buy_result = user_account.buy(stock_code, close_price, number, date)
             if not buy_result:
                 continue
@@ -124,7 +124,7 @@ for day in days:
             sell_price = cu.get_sell_point_v2(grid_record['stock'], date)
             # 满足卖点或者持仓超过3年没有满足
             # if (close_price >= sell_price) or du.get_interval_days(grid_record["stock"].buy_date, date) > 365 * 5:
-            if (close_price >= sell_price):
+            if (close_price >= sell_price) and pe_ttm > 0:
                 # 满足卖点，卖出
                 sell_result = user_account.sell(stock_code, close_price, grid_record['stock'].holding_num)
                 if not sell_price:
@@ -141,9 +141,9 @@ for day in days:
                 # 获取买点，持仓里面最小卖出价格的92.5%
                 min_sell_price = table.get_min_sell_price(stock_code, date)
                 # 如果没有持仓了，返回0，股价不可能小于0，所以这里的条件无法出发，不会买入
-                buy_price = min_sell_price * 0.925
+                buy_price = min_sell_price * 0.9
                 stock_percentage = (user_account.holding_stocks[stock_code].holding_num * close_price) / total_value
-                if close_price <= buy_price and percentile < 70 and stock_percentage < 0.08 and pe_ttm < 30:
+                if close_price <= buy_price and percentile < 70 and stock_percentage < 0.0625 and pe_ttm < 30 and pe_ttm > 0:
                     buy_result = user_account.buy(stock_code, close_price, number)
                     if not buy_result:
                         continue
