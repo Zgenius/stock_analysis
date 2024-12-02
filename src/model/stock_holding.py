@@ -15,6 +15,8 @@ class stock_holding(stock):
     sell_date = None
     # 盈亏
     profit = 0.0
+    # 持仓红利
+    holding_dividend = 0.0
 
     # 获取持仓市值
     def getMarketValue(self):

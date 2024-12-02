@@ -63,3 +63,7 @@ def stock_individual_indicator(symbol):
 # 获取个股的基本信息的一个字段
 def stock_individual_info_get(stock_info, key):
     return stock_info[stock_info["item"].eq(key)]["value"].iloc[0]
+
+# 获取每只股票的除权派息信息
+def stock_individual_ex_rights_detail(symbol):
+    return ak.stock_fhps_detail_em(symbol)

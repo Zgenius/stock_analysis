@@ -7,12 +7,12 @@ class account:
     # 最小单位
     MIN_NUMBER = 100
     # 可用现金
-    avilable_cash = 0
+    availible_cash = 0
     # 持仓股票
     holding_stocks = {}
 
     def __init__(self, cash):
-        self.avilable_cash = cash
+        self.availible_cash = cash
         self.holding_stocks = {}
 
     # 账户买入股票
@@ -28,7 +28,7 @@ class account:
         # 买入花销
         cost_amount = price * number
         # 如果县级不够，就直接买入失败
-        if cost_amount > self.avilable_cash:
+        if cost_amount > self.availible_cash:
             return False
 
         if code in self.holding_stocks:
@@ -47,7 +47,7 @@ class account:
             buy_stock.buy_date = date
 
         # 减去现金
-        self.avilable_cash -= cost_amount
+        self.availible_cash -= cost_amount
         # 买入成功，账户记录下
         self.holding_stocks[buy_stock.code] = buy_stock
 
@@ -63,8 +63,8 @@ class account:
             return False
         
         # 必须是100的整数倍
-        if number % self.MIN_NUMBER != 0:
-            return False
+        # if number % self.MIN_NUMBER != 0:
+        #     return False
 
         # 没有持仓，就返回失败
         if code not in self.holding_stocks:
@@ -81,7 +81,7 @@ class account:
         # 卖出之后，剩余持仓
         holding_stock.holding_num -= number
         # 股票卖出，增加现金
-        self.avilable_cash += sell_cash
+        self.availible_cash += sell_cash
 
         # 如果还有持仓，更新下数据
         if holding_stock.holding_num != 0:
@@ -96,7 +96,7 @@ class account:
     
     # 获取总资产
     def get_total_asset(self):
-        return self.get_market_value() + self.avilable_cash
+        return self.get_market_value() + self.availible_cash
 
     # 获取总市值
     def get_market_value(self):
@@ -108,7 +108,7 @@ class account:
         return market_value
 
     def __str__(self) -> str:
-        template = "总资产: {}\n市值: {}\n可用现金: {}\n持仓股票: \n".format(self.get_total_asset(), self.get_market_value(), self.avilable_cash)
+        template = "总资产: {}\n市值: {}\n可用现金: {}\n持仓股票: \n".format(self.get_total_asset(), self.get_market_value(), self.availible_cash)
         holding = ""
         for index in self.holding_stocks:
             holding += str(self.holding_stocks[index]) + "\n"
@@ -130,7 +130,7 @@ class account:
 
             market_value += close_price * stock.holding_num
 
-        return market_value + self.avilable_cash
+        return market_value + self.availible_cash
 
     # 获取持仓占比
     def stock_percentage(self, stock_code, stock_code_2_history_info, date):

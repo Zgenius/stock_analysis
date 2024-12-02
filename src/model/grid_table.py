@@ -84,7 +84,7 @@ class grid_table:
     def get_total_profit(self):
         total_profit = 0
         for record in self.handled_records:
-            total_profit += record.profit
+            total_profit += record.profit + record.holding_dividend
         
         return total_profit
 
@@ -97,7 +97,7 @@ class grid_table:
                 year_2_statistics[year] = 0
             
             statistics = year_2_statistics[year]
-            statistics += record.profit
+            statistics += record.profit  + record.holding_dividend
             year_2_statistics[year] = statistics
         
         return year_2_statistics

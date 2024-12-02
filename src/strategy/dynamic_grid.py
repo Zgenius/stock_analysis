@@ -15,7 +15,7 @@ from model.grid_table import grid_table
 动态网格策略回测
 """
 
-GRID_RATE = 50
+GRID_RATE = 24
 # 时间范围
 START_DATE = "20150101"
 END_DATE = datetime.now().strftime("%Y%m%d")
@@ -25,22 +25,22 @@ END_DATE = datetime.now().strftime("%Y%m%d")
 # print(stock_codes)
 # 当天的结果已经有了
 stock_codes = [
-    "000333",
-    "000651",
-    "000661",
-    "002304",
-    "002415",
-    "300628",
-    "600036",
-    "600519",
-    "600563",
-    "600690",
-    "600885",
-    "600887",
-    "603288",
-    "603605",
-    "603833",
-    "603899"
+    "000333", # 22%
+    "000651", # 26%
+    # "000661", # 18%
+    "002304", # 20%
+    # "002415", # 19%
+    "300628", # 25%
+    # "600036", # 16%
+    # "600519", # 30%
+    "600563", # 20%
+    # "600690", # 17%
+    # "600885", # 17%
+    "600887", # 20%
+    "603288", # 20%
+    "603605", # 25%
+    # "603833", # 15%
+    # "603899" # 15%
 ]
 
 # 初始化账户
@@ -54,10 +54,13 @@ table = grid_table()
 stock_code_2_indicator = {}
 # 股票编码到历史数据的映射表
 stock_code_2_history_info = {}
+# 股票除权除息信息
+stock_code_2_ex_rights = {}
 for stock_code in stock_codes:
     # 获取pe等基础信息
     stock_code_2_indicator[stock_code] = su.stock_individual_indicator(stock_code)
     stock_code_2_history_info[stock_code] = su.stock_daily_history(stock_code, START_DATE, END_DATE)
+    stock_code_2_ex_rights[stock_code] = su.stock_individual_ex_rights_detail(stock_code)
     time.sleep(1)
 
 days = du.get_between_days(START_DATE, END_DATE)
@@ -77,6 +80,10 @@ for day in days:
 
         # 获取历史每天的信息
         stock_daily_history = stock_code_2_history_info[stock_code]
+
+        # 获取个股所有的除权除息信息
+        stock_ex_rights = stock_code_2_ex_rights[stock_code]
+        ex_rights_resutl = cu.ex_rights(stock_code, user_account, table, stock_code_2_ex_rights, date)
 
         date_indicator = stock_indicator[stock_indicator["trade_date"] == date]
         if date_indicator.empty:
@@ -143,7 +150,7 @@ for day in days:
                 # 如果没有持仓了，返回0，股价不可能小于0，所以这里的条件无法出发，不会买入
                 buy_price = min_sell_price * 0.9
                 stock_percentage = (user_account.holding_stocks[stock_code].holding_num * close_price) / total_value
-                if close_price <= buy_price and percentile < 70 and stock_percentage < 0.0625 and pe_ttm < 30 and pe_ttm > 0:
+                if close_price <= buy_price and percentile < 70 and stock_percentage < 0.12 and pe_ttm < 30 and pe_ttm > 0:
                     buy_result = user_account.buy(stock_code, close_price, number)
                     if not buy_result:
                         continue

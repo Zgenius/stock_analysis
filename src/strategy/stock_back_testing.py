@@ -61,7 +61,7 @@ class stock_back_testing:
                 # 存在持仓股票，先卖出
                 user_account.sell(argv[0], price_0, self.EXCHANGE_NUM)
                 # 确定买入数量
-                number = util.can_buy_num(user_account.avilable_cash, price_1)
+                number = util.can_buy_num(user_account.availible_cash, price_1)
                 # 用现金买入
                 buy_result = user_account.buy(argv[1], price_1, number)
                 # 从第一次买入或者卖出，就开启定时器
@@ -73,7 +73,7 @@ class stock_back_testing:
                 # 存在持仓股票，先卖出
                 user_account.sell(argv[1], price_1, self.EXCHANGE_NUM)
                 # 确定买入数量
-                number = util.can_buy_num(user_account.avilable_cash, price_0)
+                number = util.can_buy_num(user_account.availible_cash, price_0)
                 # 用现金买入
                 buy_result = user_account.buy(argv[0], price_0, number)
                 # 从第一次买入或者卖出，就开启定时器

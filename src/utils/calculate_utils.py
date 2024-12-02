@@ -71,3 +71,73 @@ def valuation_percentile(indicator, date, key, value):
     
     # 计算估值百分位
     return (value - min) / (max - min) * 100
+
+# 除权除息
+def ex_rights(stock_code, user_account, grid_table, ex_right_info, date):
+    if stock_code not in ex_right_info:
+        return False
+
+    # 没有持仓，就返回
+    if stock_code not in user_account.holding_stocks:
+        return False
+
+    ex_rights = ex_right_info[stock_code]
+    ex_right = ex_rights[ex_rights["除权除息日"] == date]
+    # 当天没有除权除息，就啥也不干
+    if ex_right.size == 0:
+        return False
+    
+    # 单位是每10股分多少，计算成每股分多少
+    cash_dividend = ex_right.get("现金分红-现金分红比例").item()
+    # 如果不是nan，就说明有分红，处理分红除权
+    if not math.isnan(cash_dividend):
+        cash_dividend = cash_dividend / 10
+        # 持仓账户处理，有持仓，这时候要吧持仓股票进行除权
+        if stock_code in user_account.holding_stocks:
+            stock = user_account.holding_stocks[stock_code]
+            # 持仓股价-每股分红
+            stock.buy_price -= cash_dividend
+            user_account.holding_stocks[stock_code] = stock
+            # 分红增加到现金上
+            user_account.availible_cash += stock.holding_num * cash_dividend
+            print("{}({})".format(stock.name, stock.code), "分红除权，每股现金: ", cash_dividend)
+        
+        # 网格交易表存在持仓，进行除权处理
+        if stock_code in grid_table.stock_code_2_records:
+            # 拿出来所有网格持仓信息的记录
+            records = grid_table.stock_code_2_records[stock_code]
+            for index, record in enumerate(records):
+                # 买入价格减去现金分红
+                record['stock'].buy_price -= cash_dividend
+                # 记录持仓红利
+                record['stock'].holding_dividend += cash_dividend * record['stock'].holding_num
+                grid_table.stock_code_2_records[stock_code][index] = record
+    
+    # 配股，每个单位是10股
+    right_issue = ex_right.get("送转股份-转股比例").item()
+    if not math.isnan(right_issue):
+        # 每股配股多少份
+        right_issue = right_issue / 10
+        # 配股比例，每股配股数额 + 1
+        right_issue_rate = right_issue + 1
+        if stock_code in user_account.holding_stocks:
+            stock = user_account.holding_stocks[stock_code]
+            # 股价除权
+            stock.buy_price = stock.buy_price / right_issue_rate
+            # 股票数量更新
+            stock.holding_num = stock.holding_num * right_issue_rate
+            # 更新进持仓
+            user_account.holding_stocks[stock_code] = stock
+
+        # 网格交易表存在持仓，进行除权处理
+        if stock_code in grid_table.stock_code_2_records:
+            # 拿出来所有网格持仓信息的记录
+            records = grid_table.stock_code_2_records[stock_code]
+            for index, record in enumerate(records):
+                # 股价变化了
+                record['stock'].buy_price = record['stock'].buy_price / right_issue_rate
+                record['stock'].holding_num = record['stock'].holding_num * right_issue_rate
+                # 更新进网格
+                grid_table.stock_code_2_records[stock_code][index] = record
+
+    return True
