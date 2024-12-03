@@ -14,54 +14,71 @@ buy and hold 低估分批买入，高估分批卖出
 """
 
 # 时间范围
-START_DATE = "20150101"
+START_DATE = "20140101"
 END_DATE = datetime.now().strftime("%Y%m%d")
 
 BUY_POSITION = {
-    0: 40,
-    10: 30,
-    20: 20,
-    30: 10
+    0: 100,
+    10: 90,
+    20: 80,
+    30: 50
 }
 
 SELL_POSITION = {
-    99: 40,
-    90: 30,
-    80: 20,
-    70: 10
+    99: 0,
+    # 90: 50,
+    # 80: 20,
+    # 70: 10
 }
 
 BUY_SELL_PAIR = {
     0: 99,
     10: 90,
     20: 80,
-    30: 70
+    # 30: 70
 }
 
-SELL_BUY_PAIR = dict(zip(BUY_SELL_PAIR.values(), BUY_SELL_PAIR.keys()))
-
 # 选股
-# stock_codes = sc.stock_choice()
+stock_codes = sc.stock_choice(10)
 # print(stock_codes)
 # 当天的结果已经有了
-stock_codes = [
-    "000333",
-    "000651",
-    "000661",
-    "002304",
-    "002415",
-    "300628",
-    "600036",
-    "600519",
-    "600563",
-    "600690",
-    "600885",
-    "600887",
-    "603288",
-    "603605",
-    "603833",
-    "603899"
-]
+# stock_codes = [
+#     "000333",
+#     "000651",
+#     "000661",
+#     "002304",
+#     "002415",
+#     "300628",
+#     "600036",
+#     "600519",
+#     "600563",
+#     "600690",
+#     "600885",
+#     "600887",
+#     "603288",
+#     "603605",
+#     "603833",
+#     "603899"
+# ]
+
+# stock_codes = [
+#     "000333", # 22%
+#     "000651", # 26%
+#     # "000661", # 18%
+#     "002304", # 20%
+#     "002415", # 19%
+#     "300628", # 25%
+#     # "600036", # 16%
+#     "600519", # 30%
+#     "600563", # 20%
+#     # "600690", # 17%
+#     # "600885", # 17%
+#     "600887", # 20%
+#     "603288", # 20%
+#     "603605", # 25%
+#     # "603833", # 15%
+#     # "603899" # 15%
+# ]
 
 # 股票数量
 stock_num = len(stock_codes)
@@ -82,10 +99,13 @@ stock_code_2_sell_rate = {}
 stock_code_2_indicator = {}
 # 股票编码到历史数据的映射表
 stock_code_2_history_info = {}
+# 股票除权除息信息
+stock_code_2_ex_rights = {}
 for stock_code in stock_codes:
     # 获取pe等基础信息
     stock_code_2_indicator[stock_code] = su.stock_individual_indicator(stock_code)
     stock_code_2_history_info[stock_code] = su.stock_daily_history(stock_code, START_DATE, END_DATE)
+    stock_code_2_ex_rights[stock_code] = su.stock_individual_ex_rights_detail(stock_code)
 
     # 没有记录，初始化下
     if stock_code not in stock_code_2_buy_rate:
@@ -117,6 +137,10 @@ for day in days:
 
         # 获取历史每天的信息
         stock_daily_history = stock_code_2_history_info[stock_code]
+
+        # 获取个股所有的除权除息信息
+        stock_ex_rights = stock_code_2_ex_rights[stock_code]
+        ex_rights_resutl = cu.ex_rights(stock_code, user_account, table, stock_code_2_ex_rights, date)
 
         date_indicator = stock_indicator[stock_indicator["trade_date"] == date]
         if date_indicator.empty:
@@ -156,9 +180,6 @@ for day in days:
         for pe_percentile in BUY_POSITION:
             # 循环，判断买入标准，如果没有满足的，就会直接跳过，直到有满足的，才会走下面的逻辑
             if percentile <= pe_percentile:
-                # 之前买过并且还没卖，就放弃这个比例的购买，说明买过了
-                if pe_percentile in stock_code_2_buy_rate[stock_code] and BUY_SELL_PAIR[pe_percentile] not in stock_code_2_sell_rate[stock_code]:
-                    continue
 
                 # pe太高的不买
                 if pe_ttm > 30:
@@ -167,44 +188,49 @@ for day in days:
                 # 买入比例
                 buy_rate = BUY_POSITION[pe_percentile] / 100
 
-                # 计算买入金额 持仓比例 * 单只股票上限
-                buy_cash = buy_rate * single_limit_cash
+                # 股票当前应该持仓上限大于持仓上限10%的，就需要买入，也就是小与30%的就不管了
+                diff_rate = buy_rate - stock_holding_value / single_limit_cash
+                if diff_rate < 0.1:
+                    continue
 
-                print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile)
+                # 计算买入金额 持仓比例 * 单只股票上限
+                buy_cash = diff_rate * single_limit_cash
+
                 # 确定买入数量
                 number = util.can_buy_num(buy_cash, close_price)
-                user_account.buy(stock_code, close_price, number)
-                # 记录这个分位买过了
-                stock_code_2_buy_rate[stock_code].append(pe_percentile)
-                if BUY_SELL_PAIR[pe_percentile] in stock_code_2_sell_rate[stock_code]:
-                    stock_code_2_sell_rate[stock_code].remove(BUY_SELL_PAIR[pe_percentile])
-                continue
+                buy_result = user_account.buy(stock_code, close_price, number)
+                if buy_result:
+                    print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile, "买入金额", number * close_price)
+                    stock_holding_num += number
+
+                break
         
+        # 可能买入成功了，在计算一次单只股票持仓价值
+        stock_holding_value = stock_holding_num * close_price
+
         for pe_percentile in SELL_POSITION:
             # 没有满这个分位标准，就
             if percentile >= pe_percentile:
-                # 已经卖出过了或者没有买入，就过滤
-                if pe_percentile in stock_code_2_sell_rate[stock_code] or SELL_BUY_PAIR[pe_percentile] not in stock_code_2_buy_rate[stock_code]:
-                    continue
-
                 # pe太低的不卖
-                if pe_ttm < 10:
+                if pe_ttm < 40:
                     continue
 
                 sell_rate = SELL_POSITION[pe_percentile] / 100
 
-                # 计算买入金额 持仓比例 * 单只股票上限
-                sell_cash = sell_rate * single_limit_cash
+                diff_rate = stock_holding_value / single_limit_cash - sell_rate
+                if diff_rate < 0.5:
+                    continue
 
-                print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile)
+                # 计算买入金额 持仓比例 * 单只股票上限
+                sell_cash = diff_rate * single_limit_cash
+
                 # 确定卖出数量
                 number = util.can_buy_num(sell_cash, close_price)
-                user_account.sell(stock_code, close_price, number)
-                # 记录卖出分位
-                stock_code_2_sell_rate[stock_code].append(pe_percentile)
-                if SELL_BUY_PAIR[pe_percentile] in stock_code_2_buy_rate[stock_code]:
-                    stock_code_2_buy_rate[stock_code].remove(SELL_BUY_PAIR[pe_percentile])
-                continue
+                sell_result = user_account.sell(stock_code, close_price, number)
+                if sell_result:
+                    print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile, "卖出金额", number * close_price)
+
+                break
 
 print(user_account)
 # print("网格总盈利： ", table.get_total_profit())

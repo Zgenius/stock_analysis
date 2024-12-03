@@ -15,9 +15,9 @@ from model.grid_table import grid_table
 动态网格策略回测
 """
 
-GRID_RATE = 24
+GRID_RATE = 12
 # 时间范围
-START_DATE = "20150101"
+START_DATE = "20140101"
 END_DATE = datetime.now().strftime("%Y%m%d")
 
 # 选股
@@ -28,23 +28,23 @@ stock_codes = [
     "000333", # 22%
     "000651", # 26%
     # "000661", # 18%
-    "002304", # 20%
+    # "002304", # 20%
     # "002415", # 19%
     "300628", # 25%
     # "600036", # 16%
     # "600519", # 30%
-    "600563", # 20%
+    # "600563", # 20%
     # "600690", # 17%
     # "600885", # 17%
-    "600887", # 20%
-    "603288", # 20%
+    # "600887", # 20%
+    # "603288", # 20%
     "603605", # 25%
     # "603833", # 15%
     # "603899" # 15%
 ]
 
 # 初始化账户
-user_account = account(1000000)
+user_account = account(100000)
 print(user_account)
 
 # 初始化网格记录表
@@ -150,7 +150,7 @@ for day in days:
                 # 如果没有持仓了，返回0，股价不可能小于0，所以这里的条件无法出发，不会买入
                 buy_price = min_sell_price * 0.9
                 stock_percentage = (user_account.holding_stocks[stock_code].holding_num * close_price) / total_value
-                if close_price <= buy_price and percentile < 70 and stock_percentage < 0.12 and pe_ttm < 30 and pe_ttm > 0:
+                if close_price <= buy_price and percentile < 70 and stock_percentage < 0.25 and pe_ttm < 30 and pe_ttm > 0:
                     buy_result = user_account.buy(stock_code, close_price, number)
                     if not buy_result:
                         continue

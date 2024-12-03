@@ -1,4 +1,4 @@
-import utils.stock_utils as cu
+import utils.stock_utils as su
 import constant.eastmoney_constant as const
 import constant.fund_code_constant as fc
 import manager.stock_info_manager as sim
@@ -49,21 +49,21 @@ filter_sector_names = [
 
 stock_codes = []
 # 所有股票信息
-stocks = cu.index_contain_stocks(fc.CODE_ZZ_A500)
+stocks = su.index_contain_stocks(fc.CODE_ZZ_A500)
 for index, row in stocks.iterrows():
-    stock_info = cu.stock_individual_info(row[const.FUND_CONTAINS_STOCK_CODE])
-    stock_availability = datetime.strptime(str(cu.stock_individual_info_get(stock_info, const.STOCK_AVAILABILITY)), "%Y%m%d")
+    stock_info = su.stock_individual_info(row[const.FUND_CONTAINS_STOCK_CODE])
+    stock_availability = datetime.strptime(str(su.stock_individual_info_get(stock_info, const.STOCK_AVAILABILITY)), "%Y%m%d")
     # 如果上市时间不小于可接受的最早上市时间，就过滤掉
     if stock_availability > earliest_availability:
         continue
 
     # 过滤掉行业：医疗，地产，金融，汽车
-    sector_name = cu.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_SECTOR)
+    sector_name = su.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_SECTOR)
     if sector_name in filter_sector_names:
         continue
 
     # 记录下满足条件的编码
-    stock_codes.append(cu.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_CODE))
+    stock_codes.append(su.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_CODE))
 print(stock_codes)
 
 satisfied_ROE_stock_codes = []

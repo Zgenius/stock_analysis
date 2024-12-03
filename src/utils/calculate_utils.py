@@ -142,3 +142,7 @@ def ex_rights(stock_code, user_account, grid_table, ex_right_info, date):
                 grid_table.stock_code_2_records[stock_code][index] = record
 
     return True
+
+# 按照字典值排序
+def dict_sort(data):
+    return dict(sorted(data.items(), key=lambda item: item[1], reverse=True))
