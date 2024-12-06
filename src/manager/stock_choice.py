@@ -17,6 +17,7 @@ def stock_choice(top = 20):
     now = datetime.now()
     earliest_availability = now - timedelta(days = 365 * 5)
 
+    # TODO 改成用日期拼接1231的形式
     annual_report_dates = [
         "20101231",
         "20111231",
@@ -38,6 +39,7 @@ def stock_choice(top = 20):
     filter_sector_names = [
         "证券",
         "保险",
+        # "银行",
         "房地产开发",
         "房地产服务",
         "中药",
@@ -68,33 +70,21 @@ def stock_choice(top = 20):
 
         # 记录下满足条件的编码
         stock_codes.append(cu.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_CODE))
-    # print(stock_codes)
 
-    satisfied_ROE_stock_codes = []
+    # 获取财务数据基础信息
+    stock_code_2_date_2_base_info = cu.stock_2_date_base_info(annual_report_dates)
+
+
     # 获取股票每年的ROE
-    stock_code_2_date_ROE = sim.stock_ROE(stock_codes, annual_report_dates)
+    stock_code_2_date_ROE = sim.stock_2_date_indicator(stock_codes, annual_report_dates, stock_code_2_date_2_base_info, "净资产收益率")
     # 每只股票的平均ROE
-    stock_code_2_avg_ROE = {}
-    for stock_code, date_2_ROE in stock_code_2_date_ROE.items():
-        total_ROE = 0
-        for ROE in date_2_ROE.values():
-            # 过滤掉ROE，ROE是nan的在亏损
-            if math.isnan(ROE):
-                continue
-            # ROE汇总
-            total_ROE += ROE
-
-        total_len = len(date_2_ROE)
-
-        if total_len == 0:
-            stock_code_2_avg_ROE[stock_code] = 0
-        else:
-            stock_code_2_avg_ROE[stock_code] = total_ROE / total_len
-
+    stock_code_2_avg_ROE = su.stock_code_2_avg(stock_code_2_date_ROE)
     # roe平均值降序排序
     stock_code_2_avg_ROE = su.dict_sort(stock_code_2_avg_ROE)
 
-    # print(stock_code_2_date_ROE)
+    # 满足ROE的股票编码
+    satisfied_ROE_stock_codes = []
+    # 过滤掉这些年中，存在一年roe小于8%的股票
     for stock_code in stock_codes:
         if stock_code not in stock_code_2_date_ROE:
             continue
@@ -104,8 +94,8 @@ def stock_choice(top = 20):
         # 跳过ROE过低股票的标记
         jump_stock_code = False
         for ROE in date_2_ROE.values():
-            # ROE存在小于15就跳过这只股票
-            if math.isnan(ROE) or ROE < 15.0:
+            # ROE存在小于8%就跳过这只股票
+            if math.isnan(ROE) or ROE < 12:
                 jump_stock_code = True
                 break
 
@@ -113,11 +103,61 @@ def stock_choice(top = 20):
         if not jump_stock_code:
             satisfied_ROE_stock_codes.append(stock_code)
     
+    # 获取股票每年的净利润同比增长率
+    stock_code_2_date_YOY_net_profit_growth = sim.stock_2_date_indicator(stock_codes, annual_report_dates, stock_code_2_date_2_base_info, "净利润-同比增长")
+    # 每只股票的平均净利润环比增长率
+    stock_code_2_avg_YOY_net_profit_growth = su.stock_code_2_avg(stock_code_2_date_YOY_net_profit_growth)
+    # 净利润环比增长率降序排序
+    stock_code_2_avg_YOY_net_profit_growth = su.dict_sort(stock_code_2_avg_YOY_net_profit_growth)
+    
+    # 过滤掉异常的净利润同比增长率的股票
+    satisfied_net_profit_stock_codes = []
+    for stock_code in stock_codes:
+        if stock_code not in stock_code_2_date_YOY_net_profit_growth:
+            continue
+
+        date_2_YOY_net_profit_growth = stock_code_2_date_YOY_net_profit_growth[stock_code]
+
+        jump_stock_code = False
+        for YOY_net_profit_growth in date_2_YOY_net_profit_growth.values():
+            if math.isnan(YOY_net_profit_growth):
+                continue
+
+            # 存在某年净利润同比增长率下跌超过20%的不要，净利润增长大于100%一般都是去年基数过低的，不要
+            if YOY_net_profit_growth > 150 or YOY_net_profit_growth < -20:
+                jump_stock_code = True
+
+        if not jump_stock_code:
+            satisfied_net_profit_stock_codes.append(stock_code)
+
+    # 计算净现比
+    stock_code_2_date_OCF = sim.stock_code_date_2_OCF(stock_code_2_date_2_base_info)
+    stock_code_2_avg_OCF = su.stock_code_2_avg(stock_code_2_date_OCF)
+    # 净现比合格的股编码
+    satisfied_OCF_stock_codes = []
+    for stock_code in stock_codes:
+        if stock_code not in stock_code_2_date_OCF:
+            continue
+
+        date_2_OCF = stock_code_2_date_OCF[stock_code]
+        jump_stock_code = False
+        for OCF in date_2_OCF.values():
+            if math.isnan(OCF):
+                continue
+
+            # 净现比至少0
+            if OCF <= 0:
+                jump_stock_code = True
+
+        if not jump_stock_code:
+            satisfied_OCF_stock_codes.append(stock_code)
+
     i = 0
     satisfied_stock_codes = []
-    for stock_code in stock_code_2_avg_ROE:
-        # 从roe最高的排序获取，获取top个,多余的就过滤掉
-        if stock_code in satisfied_ROE_stock_codes and i < top:
+    for stock_code, avg_ROE in stock_code_2_avg_ROE.items():
+        OCF = stock_code_2_avg_OCF[stock_code]
+        # 从roe最高的排序获取，获取top个,多余的就过滤掉,并且满足净利润没有负增长的股票，平均roe大于15
+        if stock_code in satisfied_ROE_stock_codes and i < top and stock_code in satisfied_net_profit_stock_codes and avg_ROE >= 22 and stock_code in satisfied_OCF_stock_codes and OCF > 1:
             satisfied_stock_codes.append(stock_code)
             i += 1
 

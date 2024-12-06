@@ -68,7 +68,7 @@ print(stock_codes)
 
 satisfied_ROE_stock_codes = []
 # 获取股票每年的ROE
-stock_code_2_date_ROE = sim.stock_ROE(stock_codes, annual_report_dates)
+stock_code_2_date_ROE = sim.stock_2_date_indicator(stock_codes, date_list, annual_report_dates)
 print(stock_code_2_date_ROE)
 for index, stock_code in enumerate(stock_codes):
     if stock_code not in stock_code_2_date_ROE:

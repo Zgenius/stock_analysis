@@ -100,24 +100,24 @@ for day in days:
             continue
 
         # 获取收盘价格
-        close_price = date_hitory.get(const.CLOSE_PRICE_KEY).item()
+        open_price = date_hitory.get(const.OPEN_PRICE_KEY).item()
 
         # 小于0的过滤掉
-        if close_price <= 0:
+        if open_price <= 0:
             continue
 
         total_value = user_account.get_market_value_date(stock_code_2_history_info, date)
         # 确定买入数量，第一次建仓买入不超过2%总资产
-        number = util.can_buy_num(total_value / GRID_RATE, close_price)
+        number = util.can_buy_num(total_value / GRID_RATE, open_price)
 
         # 没有持仓，并且估值分位小于70%，就买入第一笔
         if stock_code not in table.stock_code_2_records and percentile < 70 and pe_ttm < 30 and pe_ttm > 0:
-            buy_result = user_account.buy(stock_code, close_price, number, date)
+            buy_result = user_account.buy(stock_code, open_price, number, date)
             if not buy_result:
                 continue
             print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile)
             stock = copy.deepcopy(user_account.holding_stocks[stock_code])
-            stock.buy_price = close_price
+            stock.buy_price = open_price
             stock.buy_date = date
             # 网格表记录
             table.add(stock)
@@ -131,16 +131,16 @@ for day in days:
             sell_price = cu.get_sell_point_v2(grid_record['stock'], date)
             # 满足卖点或者持仓超过3年没有满足
             # if (close_price >= sell_price) or du.get_interval_days(grid_record["stock"].buy_date, date) > 365 * 5:
-            if (close_price >= sell_price) and pe_ttm > 0:
+            if (open_price >= sell_price) and pe_ttm > 0:
                 # 满足卖点，卖出
-                sell_result = user_account.sell(stock_code, close_price, grid_record['stock'].holding_num)
+                sell_result = user_account.sell(stock_code, open_price, grid_record['stock'].holding_num)
                 if not sell_price:
                     continue
                 print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile)
                 stock = copy.deepcopy(grid_record['stock'])
-                stock.sell_price = close_price
+                stock.sell_price = open_price
                 stock.sell_date = date
-                stock.profit = (close_price - stock.buy_price) * stock.holding_num
+                stock.profit = (open_price - stock.buy_price) * stock.holding_num
                 # 卖出之后，记录卖出信息
                 table.remove(stock, grid_record_key)
                 continue
@@ -149,14 +149,14 @@ for day in days:
                 min_sell_price = table.get_min_sell_price(stock_code, date)
                 # 如果没有持仓了，返回0，股价不可能小于0，所以这里的条件无法出发，不会买入
                 buy_price = min_sell_price * 0.9
-                stock_percentage = (user_account.holding_stocks[stock_code].holding_num * close_price) / total_value
-                if close_price <= buy_price and percentile < 70 and stock_percentage < 0.25 and pe_ttm < 30 and pe_ttm > 0:
-                    buy_result = user_account.buy(stock_code, close_price, number)
+                stock_percentage = (user_account.holding_stocks[stock_code].holding_num * open_price) / total_value
+                if open_price <= buy_price and percentile < 70 and stock_percentage < 0.25 and pe_ttm < 30 and pe_ttm > 0:
+                    buy_result = user_account.buy(stock_code, open_price, number)
                     if not buy_result:
                         continue
                     print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile)
                     stock = copy.deepcopy(user_account.holding_stocks[stock_code])
-                    stock.buy_price = close_price
+                    stock.buy_price = open_price
                     stock.buy_date = date
                     stock.holding_num = number
 

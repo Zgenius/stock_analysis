@@ -31,13 +31,6 @@ SELL_POSITION = {
     # 70: 10
 }
 
-BUY_SELL_PAIR = {
-    0: 99,
-    10: 90,
-    20: 80,
-    # 30: 70
-}
-
 # 选股
 stock_codes = sc.stock_choice(10)
 # print(stock_codes)

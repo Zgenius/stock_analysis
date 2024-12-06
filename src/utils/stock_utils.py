@@ -67,3 +67,23 @@ def stock_individual_info_get(stock_info, key):
 # 获取每只股票的除权派息信息
 def stock_individual_ex_rights_detail(symbol):
     return ak.stock_fhps_detail_em(symbol)
+
+# 获取股票的财务基本信息
+def stock_2_date_base_info(date_list):
+    # 循环查询每个日期的净资产收益率
+    stock_code_2_date_2_base_info = {}
+    for date in date_list:
+        # 获取每个财报日的基础信息
+        stock_code_2_info = stock_code_2_base_info(date)
+        for stock_code, base_info in stock_code_2_info.items():
+            # 如果还没有赋值过，就初始化赋值
+            if stock_code not in stock_code_2_date_2_base_info:
+                stock_code_2_date_2_base_info[stock_code] = {}
+            
+            # 按到日期到基础信息的字典
+            date_2_base_info = stock_code_2_date_2_base_info[stock_code]
+            date_2_base_info[date] = base_info
+            # 数据写入
+            stock_code_2_date_2_base_info[stock_code] = date_2_base_info
+    
+    return stock_code_2_date_2_base_info

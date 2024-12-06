@@ -1,4 +1,5 @@
 CLOSE_PRICE_KEY = "收盘"
+OPEN_PRICE_KEY = "开盘"
 FLUCTUATION_RANGE = "涨跌幅"
 DATE = "日期"
 STOCK_CODE = "代码"
