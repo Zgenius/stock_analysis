@@ -20,6 +20,20 @@ def get_annual_report_dates(end_date):
     
     return annual_report_dates
 
+# 获取最新财报日期
+def get_newest_report_date(end_date):
+    report_dates = [
+        datetime(end_date.year, 9, 30),
+        datetime(end_date.year, 7, 30),
+        datetime(end_date.year, 3, 31)
+    ]
+
+    for report_date in report_dates:
+        if end_date > report_date:
+            return report_date
+    
+    return None
+
 """
 精选股票方法:
 1.在中证A500的基金池中的股票
@@ -33,6 +47,8 @@ def stock_choice(top = 20):
     last_year = now - timedelta(days = 365)
     # 十年前
     annual_report_dates = get_annual_report_dates(last_year)
+
+    newest_report_date = get_newest_report_date(now)
 
     # 5年前
     earliest_availability = now - timedelta(days = 365 * 5)
@@ -52,10 +68,12 @@ def stock_choice(top = 20):
         "农牧饲渔",
         "物流行业",
         "航空机场",
-        "商业百货"
+        "商业百货",
+        "环保行业",
+        "化学制药"
     ]
 
-    stock_codes = []
+    stock_code_list = []
     # 所有股票信息
     stocks = cu.index_contain_stocks(fc.CODE_ZZ_A500)
     for index, row in stocks.iterrows():
@@ -71,10 +89,31 @@ def stock_choice(top = 20):
             continue
 
         # 记录下满足条件的编码
-        stock_codes.append(cu.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_CODE))
+        stock_code_list.append(cu.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_CODE))
 
     # 获取财务数据基础信息
     stock_code_2_date_2_base_info = cu.stock_2_date_base_info(annual_report_dates)
+
+    stock_codes = []
+    # 获取最新年报基本信息
+    stock_code_2_newest_base_info = {}
+    if newest_report_date != None:
+        newest_report_date = newest_report_date.strftime("%Y%m%d")
+        stock_code_2_newest_base_info = cu.stock_code_2_base_info(newest_report_date)
+    
+    # 判断最新财报的营业收入负增长了-20%，就过滤掉
+    for stock_code in stock_code_list:
+        if stock_code in stock_code_2_newest_base_info:
+            newest_base_info = stock_code_2_newest_base_info[stock_code]
+            # 判断最新财报的营业收入负增长了-20%，就过滤掉
+            if newest_base_info["营业收入-同比增长"] < -10:
+                continue
+
+            # 判断最新财报的净利润负增长了-20%，就过滤掉
+            if newest_base_info["净利润-同比增长"] < -10:
+                continue
+        
+        stock_codes.append(stock_code)
 
     # 获取股票每年的ROE
     stock_code_2_date_ROE = sim.stock_2_date_indicator(stock_codes, annual_report_dates, stock_code_2_date_2_base_info, "净资产收益率")
@@ -158,7 +197,7 @@ def stock_choice(top = 20):
     for stock_code, avg_ROE in stock_code_2_avg_ROE.items():
         OCF = stock_code_2_avg_OCF[stock_code]
         # 从roe最高的排序获取，获取top个,多余的就过滤掉,并且满足净利润没有负增长的股票，平均roe大于15
-        if stock_code in satisfied_ROE_stock_codes and i < top and stock_code in satisfied_net_profit_stock_codes and avg_ROE >= 22 and stock_code in satisfied_OCF_stock_codes and OCF > 1:
+        if stock_code in satisfied_ROE_stock_codes and i < top and stock_code in satisfied_net_profit_stock_codes and avg_ROE >= 20 and stock_code in satisfied_OCF_stock_codes and OCF > 1:
             satisfied_stock_codes.append(stock_code)
             i += 1
 

@@ -21,8 +21,8 @@ START_DATE = "20140101"
 END_DATE = datetime.now().strftime("%Y%m%d")
 
 # 选股
-stock_codes = sc.stock_choice(10)
-print(stock_codes)
+# stock_codes = sc.stock_choice()
+# print(stock_codes)
 # 当天的结果已经有了
 # stock_codes = [
 #     "000333", # 22%
@@ -42,6 +42,8 @@ print(stock_codes)
 #     # "603833", # 15%
 #     # "603899" # 15%
 # ]
+
+stock_codes = ['300628', '603288', '600519', '603605', '000651', '603899', '000333', '600887', '600690', '600563', '002475']
 
 stock_number = len(stock_codes)
 
