@@ -33,26 +33,7 @@ SELL_POSITION = {
 
 # 选股
 stock_codes = sc.stock_choice(10)
-# print(stock_codes)
-# 当天的结果已经有了
-# stock_codes = [
-#     "000333",
-#     "000651",
-#     "000661",
-#     "002304",
-#     "002415",
-#     "300628",
-#     "600036",
-#     "600519",
-#     "600563",
-#     "600690",
-#     "600885",
-#     "600887",
-#     "603288",
-#     "603605",
-#     "603833",
-#     "603899"
-# ]
+print(stock_codes)
 
 # stock_codes = [
 #     "000333", # 22%
@@ -149,11 +130,11 @@ for day in days:
         if date_hitory.empty:
             continue
 
-        # 获取收盘价格
-        close_price = date_hitory.get(const.CLOSE_PRICE_KEY).item()
+        # 获取开盘价格
+        open_price = date_hitory.get(const.OPEN_PRICE_KEY).item()
 
         # 小于0的过滤掉
-        if close_price <= 0:
+        if open_price <= 0:
             continue
 
         # 获取当天账户总价值
@@ -167,7 +148,7 @@ for day in days:
             stock_holding_num = user_account.holding_stocks[stock_code].holding_num
 
         # 单只股票持仓价值
-        stock_holding_value = stock_holding_num * close_price
+        stock_holding_value = stock_holding_num * open_price
 
         # 判断买入
         for pe_percentile in BUY_POSITION:
@@ -190,16 +171,16 @@ for day in days:
                 buy_cash = diff_rate * single_limit_cash
 
                 # 确定买入数量
-                number = util.can_buy_num(buy_cash, close_price)
-                buy_result = user_account.buy(stock_code, close_price, number)
+                number = util.can_buy_num(buy_cash, open_price)
+                buy_result = user_account.buy(stock_code, open_price, number)
                 if buy_result:
-                    print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile, "买入金额", number * close_price)
+                    print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile, "买入金额", number * open_price)
                     stock_holding_num += number
 
                 break
         
         # 可能买入成功了，在计算一次单只股票持仓价值
-        stock_holding_value = stock_holding_num * close_price
+        stock_holding_value = stock_holding_num * open_price
 
         for pe_percentile in SELL_POSITION:
             # 没有满这个分位标准，就
@@ -218,13 +199,11 @@ for day in days:
                 sell_cash = diff_rate * single_limit_cash
 
                 # 确定卖出数量
-                number = util.can_buy_num(sell_cash, close_price)
-                sell_result = user_account.sell(stock_code, close_price, number)
+                number = util.can_buy_num(sell_cash, open_price)
+                sell_result = user_account.sell(stock_code, open_price, number)
                 if sell_result:
-                    print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile, "卖出金额", number * close_price)
+                    print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile, "卖出金额", number * open_price)
 
                 break
 
 print(user_account)
-# print("网格总盈利： ", table.get_total_profit())
-# print("年度盈利: ", table.get_profit_statistics())

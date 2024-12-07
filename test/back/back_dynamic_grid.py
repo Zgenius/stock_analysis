@@ -7,6 +7,7 @@ import copy
 import utils.date_utils as du
 import time
 import json
+import math
 from model.account import account
 from datetime import datetime
 from model.grid_table import grid_table
@@ -15,36 +16,40 @@ from model.grid_table import grid_table
 动态网格策略回测
 """
 
-GRID_RATE = 12
 # 时间范围
-START_DATE = "20241203"
+START_DATE = "20140101"
 END_DATE = datetime.now().strftime("%Y%m%d")
 
 # 选股
-# stock_codes = sc.stock_choice()
+stock_codes = sc.stock_choice(20)
 # print(stock_codes)
 # 当天的结果已经有了
-stock_codes = [
-    "000333", # 22%
-    "000651", # 26%
-    # "000661", # 18%
-    # "002304", # 20%
-    # "002415", # 19%
-    "300628", # 25%
-    # "600036", # 16%
-    # "600519", # 30%
-    # "600563", # 20%
-    # "600690", # 17%
-    # "600885", # 17%
-    # "600887", # 20%
-    # "603288", # 20%
-    "603605", # 25%
-    # "603833", # 15%
-    # "603899" # 15%
-]
+# stock_codes = [
+#     "000333", # 22%
+#     "000651", # 26%
+#     # "000661", # 18%
+#     "002304", # 20%
+#     # "002415", # 19%
+#     "300628", # 25%
+#     # "600036", # 16%
+#     # "600519", # 30%
+#     "600563", # 20%
+#     # "600690", # 17%
+#     # "600885", # 17%
+#     "600887", # 20%
+#     "603288", # 20%
+#     "603605", # 25%
+#     # "603833", # 15%
+#     # "603899" # 15%
+# ]
+
+stock_number = len(stock_codes)
+
+SINGLE_STOCK_LIMIT = math.floor(1 / stock_number * 100)
+GRID_RATE = stock_number * 3
 
 # 初始化账户
-user_account = account(100000)
+user_account = account(1500000)
 print(user_account)
 
 # 初始化网格记录表
@@ -117,7 +122,7 @@ for day in days:
                 continue
             print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile)
             stock = copy.deepcopy(user_account.holding_stocks[stock_code])
-            stock.buy_price = open_price
+            stock.buy_price = (open_price * number + user_account.transacation.compute_buy_cost(open_price, number)) / number
             stock.buy_date = date
             # 网格表记录
             table.add(stock)
@@ -138,9 +143,9 @@ for day in days:
                     continue
                 print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile)
                 stock = copy.deepcopy(grid_record['stock'])
-                stock.sell_price = open_price
+                stock.sell_price = (open_price * grid_record['stock'].holding_num - user_account.transacation.compute_sell_cost(open_price, grid_record['stock'].holding_num)) / grid_record['stock'].holding_num
                 stock.sell_date = date
-                stock.profit = (open_price - stock.buy_price) * stock.holding_num
+                stock.profit = (stock.sell_price - stock.buy_price) * stock.holding_num
                 # 卖出之后，记录卖出信息
                 table.remove(stock, grid_record_key)
                 continue
@@ -150,13 +155,13 @@ for day in days:
                 # 如果没有持仓了，返回0，股价不可能小于0，所以这里的条件无法出发，不会买入
                 buy_price = min_sell_price * 0.9
                 stock_percentage = (user_account.holding_stocks[stock_code].holding_num * open_price) / total_value
-                if open_price <= buy_price and percentile < 70 and stock_percentage < 0.25 and pe_ttm < 30 and pe_ttm > 0:
+                if open_price <= buy_price and percentile < 70 and stock_percentage < SINGLE_STOCK_LIMIT and pe_ttm < 30 and pe_ttm > 0:
                     buy_result = user_account.buy(stock_code, open_price, number)
                     if not buy_result:
                         continue
                     print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile)
                     stock = copy.deepcopy(user_account.holding_stocks[stock_code])
-                    stock.buy_price = open_price
+                    stock.buy_price = (open_price * number + user_account.transacation.compute_buy_cost(open_price, number)) / number
                     stock.buy_date = date
                     stock.holding_num = number
 

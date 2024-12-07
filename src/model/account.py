@@ -1,6 +1,7 @@
+import constant.eastmoney_constant as const
+from model.transacation_cost import transacation_cost
 from model.stock_holding import stock_holding
 from context.market_context import market_context
-import constant.eastmoney_constant as const
 from datetime import datetime
 
 class account:
@@ -10,6 +11,8 @@ class account:
     availible_cash = 0
     # 持仓股票
     holding_stocks = {}
+
+    transacation = transacation_cost()
 
     def __init__(self, cash):
         self.availible_cash = cash
@@ -26,7 +29,7 @@ class account:
             return False
 
         # 买入花销
-        cost_amount = price * number
+        cost_amount = price * number + self.transacation.compute_buy_cost(price, number)
         # 如果县级不够，就直接买入失败
         if cost_amount > self.availible_cash:
             return False
@@ -43,7 +46,7 @@ class account:
             buy_stock.code = code
             buy_stock.name = market_context.STOCK_CODE_2_INFO[code][const.STOCK_NAME]
             buy_stock.holding_num = number
-            buy_stock.buy_price = price
+            buy_stock.buy_price = cost_amount / number
             buy_stock.buy_date = date
 
         # 减去现金
@@ -51,7 +54,7 @@ class account:
         # 买入成功，账户记录下
         self.holding_stocks[buy_stock.code] = buy_stock
 
-        print("买入成功：{}({}) 价格{} 数量{} 金额{}".format(buy_stock.name, buy_stock.code, price, number, price * number))
+        print("买入成功：{}({}) 价格{} 数量{} 金额{}".format(buy_stock.name, buy_stock.code, cost_amount / number, number, cost_amount))
 
         # 买入成功
         return True
@@ -76,7 +79,7 @@ class account:
             return False
         
         # 卖出现金
-        sell_cash = price * number
+        sell_cash = price * number - self.transacation.compute_sell_cost(price, number)
        
         # 卖出之后，剩余持仓
         holding_stock.holding_num -= number
@@ -90,7 +93,7 @@ class account:
             # 如果已经清仓了，就删除这个持仓
             del self.holding_stocks[code]
 
-        print("卖出成功：{}({}) 价格{} 数量{} 金额{}".format(holding_stock.name, holding_stock.code, price, number, price * number))
+        print("卖出成功：{}({}) 价格{} 数量{} 金额{}".format(holding_stock.name, holding_stock.code, price, number, sell_cash))
         
         return True
     
