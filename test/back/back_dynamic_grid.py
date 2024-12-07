@@ -21,8 +21,8 @@ START_DATE = "20140101"
 END_DATE = datetime.now().strftime("%Y%m%d")
 
 # 选股
-stock_codes = sc.stock_choice(20)
-# print(stock_codes)
+stock_codes = sc.stock_choice(10)
+print(stock_codes)
 # 当天的结果已经有了
 # stock_codes = [
 #     "000333", # 22%
@@ -49,7 +49,7 @@ SINGLE_STOCK_LIMIT = math.floor(1 / stock_number * 100)
 GRID_RATE = stock_number * 3
 
 # 初始化账户
-user_account = account(1500000)
+user_account = account(1000000)
 print(user_account)
 
 # 初始化网格记录表

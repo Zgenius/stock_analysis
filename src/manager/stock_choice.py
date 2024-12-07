@@ -3,8 +3,22 @@ import utils.calculate_utils as su
 import constant.eastmoney_constant as const
 import constant.fund_code_constant as fc
 import manager.stock_info_manager as sim
+import utils.date_utils as du
 import math
 from datetime import datetime, timedelta
+
+# 获取年报日期
+def get_annual_report_dates(end_date):
+    # 十年前
+    ten_year_ago = end_date - timedelta(days = 365 * 10)
+    # 获取所有年份
+    year_dates = du.get_between_years(ten_year_ago, end_date)
+    
+    annual_report_dates = []
+    for year_date in year_dates:
+        annual_report_dates.append(datetime(year_date.year, 12, 31).strftime("%Y%m%d"))
+    
+    return annual_report_dates
 
 """
 精选股票方法:
@@ -15,25 +29,13 @@ from datetime import datetime, timedelta
 """
 def stock_choice(top = 20):
     now = datetime.now()
-    earliest_availability = now - timedelta(days = 365 * 5)
+    # 去年
+    last_year = now - timedelta(days = 365)
+    # 十年前
+    annual_report_dates = get_annual_report_dates(last_year)
 
-    # TODO 改成用日期拼接1231的形式
-    annual_report_dates = [
-        "20101231",
-        "20111231",
-        "20121231",
-        "20131231",
-        "20141231",
-        "20151231",
-        "20161231",
-        "20171231",
-        "20181231",
-        "20191231",
-        "20201231",
-        "20211231",
-        "20221231",
-        "20231231",
-    ]
+    # 5年前
+    earliest_availability = now - timedelta(days = 365 * 5)
 
     # 需要过滤掉的行业
     filter_sector_names = [
@@ -73,7 +75,6 @@ def stock_choice(top = 20):
 
     # 获取财务数据基础信息
     stock_code_2_date_2_base_info = cu.stock_2_date_base_info(annual_report_dates)
-
 
     # 获取股票每年的ROE
     stock_code_2_date_ROE = sim.stock_2_date_indicator(stock_codes, annual_report_dates, stock_code_2_date_2_base_info, "净资产收益率")

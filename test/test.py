@@ -2,8 +2,8 @@ import utils.date_utils as du
 import utils.stock_utils as su
 import datetime
 
-# date1 = datetime.datetime(2023, 1, 1).date()
-# date2 = datetime.datetime(2023, 1, 15).date()
+date1 = datetime.datetime(2015, 1, 1).date()
+date2 = datetime.datetime(2017, 1, 1).date()
 
 # date = datetime.datetime.strptime("2001-06-05", "%Y-%m-%d")
 
@@ -15,5 +15,7 @@ import datetime
 
 # # print(ex_rights[ex_rights["除权除息日"] == date.date()].get("送转股份-转股比例").item())
 
-print(su.stock_daily_history("002304", "20150615", "20150620"))
-i = 0
+# print(su.stock_daily_history("002304", "20150615", "20150620"))
+# i = 0
+
+print(du.get_between_years(date1, date2))

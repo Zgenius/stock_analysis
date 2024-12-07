@@ -1,6 +1,7 @@
 import utils.calculate_utils as cu
 import constant.eastmoney_constant as const
 import akshare as ak
+import time
 
 # 获取沪深京A股列表
 def stock_list(): 
@@ -85,5 +86,7 @@ def stock_2_date_base_info(date_list):
             date_2_base_info[date] = base_info
             # 数据写入
             stock_code_2_date_2_base_info[stock_code] = date_2_base_info
+        
+        time.sleep(1)
     
     return stock_code_2_date_2_base_info

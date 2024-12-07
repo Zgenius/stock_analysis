@@ -129,9 +129,9 @@ class account:
                 continue
 
             # 获取收盘价格
-            close_price = date_hitory.get(const.CLOSE_PRICE_KEY).item()
+            open_price = date_hitory.get(const.OPEN_PRICE_KEY).item()
 
-            market_value += close_price * stock.holding_num
+            market_value += open_price * stock.holding_num
 
         return market_value + self.availible_cash
 
@@ -144,7 +144,7 @@ class account:
             return 0
 
         # 获取收盘价格
-        close_price = date_hitory.get(const.CLOSE_PRICE_KEY).item()
+        open_price = date_hitory.get(const.OPEN_PRICE_KEY).item()
         stock = self.holding_stocks[stock_code]
 
-        return close_price * stock.holding_num / total_value
+        return open_price * stock.holding_num / total_value
