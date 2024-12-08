@@ -16,7 +16,6 @@ buy and hold 低估分批买入，高估分批卖出
 # 时间范围
 START_DATE = "20140101"
 END_DATE = datetime.now().strftime("%Y%m%d")
-# END_DATE = "20211231"
 
 BUY_POSITION = {
     0: 100,
@@ -26,14 +25,11 @@ BUY_POSITION = {
 }
 
 SELL_POSITION = {
-    99: 0,
-    # 90: 50,
-    # 80: 20,
-    # 70: 10
+    99: 0
 }
 
 # 选股
-stock_codes = sc.stock_choice(10)
+stock_codes = sc.stock_choice(5)
 
 # stock_codes = [
 #     # "000333", # 22%
