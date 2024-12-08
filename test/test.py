@@ -1,9 +1,10 @@
 import utils.date_utils as du
 import utils.stock_utils as su
 import datetime
+import akshare as ak
 
-date1 = datetime.datetime(2015, 1, 1).date()
-date2 = datetime.datetime(2017, 1, 1).date()
+# date1 = datetime.datetime(2015, 1, 1).date()
+# date2 = datetime.datetime(2017, 1, 1).date()
 
 # date = datetime.datetime.strptime("2001-06-05", "%Y-%m-%d")
 
@@ -18,4 +19,11 @@ date2 = datetime.datetime(2017, 1, 1).date()
 # print(su.stock_daily_history("002304", "20150615", "20150620"))
 # i = 0
 
-print(du.get_between_years(date1, date2))
+# print(du.get_between_years(date1, date2))
+
+# stock_add_stock_df = ak.stock_add_stock(symbol="600887")
+# print(stock_add_stock_df)
+
+stock_history_dividend_df = ak.stock_history_dividend()
+print(len(stock_history_dividend_df[stock_history_dividend_df["代码"] == "600519"]))
+# print(stock_history_dividend_df[stock_history_dividend_df["代码"] == "600887"].get("融资次数").item())

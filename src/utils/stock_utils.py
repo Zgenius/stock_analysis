@@ -90,3 +90,7 @@ def stock_2_date_base_info(date_list):
         time.sleep(1)
     
     return stock_code_2_date_2_base_info
+
+# 获取所有股票的枫红和融资次数
+def stock_history_dividend():
+    return ak.stock_history_dividend()

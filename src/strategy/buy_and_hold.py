@@ -33,7 +33,7 @@ SELL_POSITION = {
 }
 
 # 选股
-stock_codes = sc.stock_choice(20)
+stock_codes = sc.stock_choice(10)
 print(stock_codes)
 
 # stock_codes = [

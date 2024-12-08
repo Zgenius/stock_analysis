@@ -73,9 +73,12 @@ def stock_choice(top = 20):
         "化学制药"
     ]
 
+    # 获取股票分红和融资次数等信息
+    # stock_history_dividend = cu.stock_history_dividend()
+
     stock_code_list = []
     # 所有股票信息
-    stocks = cu.index_contain_stocks(fc.CODE_ZZ_A500)
+    stocks = cu.index_contain_stocks(fc.CODE_HS_300)
     for index, row in stocks.iterrows():
         stock_info = cu.stock_individual_info(row[const.FUND_CONTAINS_STOCK_CODE])
         stock_availability = datetime.strptime(str(cu.stock_individual_info_get(stock_info, const.STOCK_AVAILABILITY)), "%Y%m%d")
@@ -110,7 +113,7 @@ def stock_choice(top = 20):
                 continue
 
             # 判断最新财报的净利润负增长了-20%，就过滤掉
-            if newest_base_info["净利润-同比增长"] < -10:
+            if newest_base_info["净利润-同比增长"] < 0:
                 continue
         
         stock_codes.append(stock_code)
@@ -181,12 +184,12 @@ def stock_choice(top = 20):
 
         date_2_OCF = stock_code_2_date_OCF[stock_code]
         jump_stock_code = False
-        for OCF in date_2_OCF.values():
-            if math.isnan(OCF):
+        for avg_OCF in date_2_OCF.values():
+            if math.isnan(avg_OCF):
                 continue
 
             # 净现比至少0
-            if OCF <= 0:
+            if avg_OCF <= 0:
                 jump_stock_code = True
 
         if not jump_stock_code:
@@ -195,9 +198,36 @@ def stock_choice(top = 20):
     i = 0
     satisfied_stock_codes = []
     for stock_code, avg_ROE in stock_code_2_avg_ROE.items():
-        OCF = stock_code_2_avg_OCF[stock_code]
-        # 从roe最高的排序获取，获取top个,多余的就过滤掉,并且满足净利润没有负增长的股票，平均roe大于15
-        if stock_code in satisfied_ROE_stock_codes and i < top and stock_code in satisfied_net_profit_stock_codes and avg_ROE >= 20 and stock_code in satisfied_OCF_stock_codes and OCF > 1:
+        # 获取分红融资次数信息
+        # stock_dividend = stock_history_dividend[stock_history_dividend["代码"] == stock_code]
+        # 过滤掉融资次数过多的股票
+        # if len(stock_dividend) > 0:
+        #     if stock_dividend.get("融资次数").item() > 0:
+        #         continue
+
+        avg_OCF = stock_code_2_avg_OCF[stock_code]
+        # 平均净现比小于1的过滤掉
+        if avg_OCF < 1:
+            continue
+
+        # 平均ROE小于20不要
+        if avg_ROE < 20:
+            continue
+
+        # 不满足净利润要求不满足的过滤掉
+        if stock_code not in satisfied_net_profit_stock_codes:
+            continue
+
+        # 不满足净现比的也过滤掉
+        if stock_code not in satisfied_OCF_stock_codes:
+            continue
+
+        # 存在任何一年roe过低的过滤掉
+        if stock_code not in satisfied_ROE_stock_codes:
+            continue
+
+        # 从roe最高的排序获取，获取top个,多余的就过滤掉,并且满足净利润没有负增长的股票
+        if i < top:
             satisfied_stock_codes.append(stock_code)
             i += 1
 
