@@ -114,7 +114,7 @@ for day in days:
         stock_daily_history = stock_code_2_history_info[stock_code]
 
         # 获取个股所有的除权除息信息
-        stock_ex_rights = stock_code_2_ex_rights[stock_code]
+        # stock_ex_rights = stock_code_2_ex_rights[stock_code]
         ex_rights_resutl = cu.ex_rights(stock_code, user_account, table, stock_code_2_ex_rights, date)
 
         date_indicator = stock_indicator[stock_indicator["trade_date"] == date]

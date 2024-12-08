@@ -18,7 +18,7 @@ pe百分位每减少10%，就相应增加仓位
 """
 
 # 时间范围
-START_DATE = "20150101"
+START_DATE = "20140101"
 END_DATE = datetime.now().strftime("%Y%m%d")
 
 HOLDING_POSITION = {
@@ -60,24 +60,30 @@ SELL_POSITION = dict(zip(HOLDING_POSITION.values(), HOLDING_POSITION.keys()))
 #     "603899"
 # ]
 
-stock_codes = [
-    "000333", # 22%
-    "000651", # 26%
-    # "000661", # 18%
-    "002304", # 20%
-    # "002415", # 19%
-    "300628", # 25%
-    # "600036", # 16%
-    "600519", # 30%
-    "600563", # 20%
-    # "600690", # 17%
-    # "600885", # 17%
-    "600887", # 20%
-    "603288", # 20%
-    "603605", # 25%
-    # "603833", # 15%
-    # "603899" # 15%
-]
+# stock_codes = [
+#     "000333", # 22%
+#     "000651", # 26%
+#     # "000661", # 18%
+#     "002304", # 20%
+#     # "002415", # 19%
+#     "300628", # 25%
+#     # "600036", # 16%
+#     "600519", # 30%
+#     "600563", # 20%
+#     # "600690", # 17%
+#     # "600885", # 17%
+#     "600887", # 20%
+#     "603288", # 20%
+#     "603605", # 25%
+#     # "603833", # 15%
+#     # "603899" # 15%
+# ]
+
+# stock_codes = ['300628', '603288', '600519', '000651', '000333', '600887', '603369', '600690', '002475']
+
+# 选股
+stock_codes = sc.stock_choice(10)
+print(stock_codes)
 
 # 股票数量
 stock_num = len(stock_codes)
@@ -138,7 +144,7 @@ for day in days:
         stock_daily_history = stock_code_2_history_info[stock_code]
 
         # 获取个股所有的除权除息信息
-        stock_ex_rights = stock_code_2_ex_rights[stock_code]
+        # stock_ex_rights = stock_code_2_ex_rights[stock_code]
         ex_rights_resutl = cu.ex_rights(stock_code, user_account, table, stock_code_2_ex_rights, date)
 
         date_indicator = stock_indicator[stock_indicator["trade_date"] == date]
