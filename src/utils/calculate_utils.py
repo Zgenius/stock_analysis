@@ -167,3 +167,18 @@ def stock_code_2_avg(stock_code_2_date_indicator):
             stock_code_2_avg_indicator[stock_code] = total_ROE / total_len
     
     return stock_code_2_avg_indicator
+
+# 获取指标最大值
+def indicator_max(indicator, date, key):
+    start_date = date - timedelta(days = 365 * 10)
+    indicator_data = indicator[indicator["trade_date"] >= start_date]
+    indicator_data = indicator_data[indicator_data["trade_date"] <= date]
+    # 获取范围内估值指标所有的数据列表
+    valuation_list = indicator_data.get(key)
+
+    max = valuation_list.max()
+
+    if max > 50:
+        max = 50
+
+    return max

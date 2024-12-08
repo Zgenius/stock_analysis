@@ -34,14 +34,13 @@ SELL_POSITION = {
 
 # 选股
 stock_codes = sc.stock_choice(10)
-print(stock_codes)
 
 # stock_codes = [
-#     "000333", # 22%
+#     # "000333", # 22%
 #     "000651", # 26%
 #     # "000661", # 18%
-#     "002304", # 20%
-#     "002415", # 19%
+#     # "002304", # 20%
+#     # "002415", # 19%
 #     "300628", # 25%
 #     # "600036", # 16%
 #     "600519", # 30%
@@ -49,11 +48,13 @@ print(stock_codes)
 #     # "600690", # 17%
 #     # "600885", # 17%
 #     "600887", # 20%
-#     "603288", # 20%
+#     # "603288", # 20%
 #     "603605", # 25%
 #     # "603833", # 15%
 #     # "603899" # 15%
 # ]
+
+print(stock_codes)
 
 # 股票数量
 stock_num = len(stock_codes)
@@ -182,12 +183,16 @@ for day in days:
         
         # 可能买入成功了，在计算一次单只股票持仓价值
         stock_holding_value = stock_holding_num * open_price
+        # 今年最大值，如果大于50，就算作50
+        # pe_ttm_max = cu.indicator_max(stock_indicator, date, "pe_ttm")
 
         for pe_percentile in SELL_POSITION:
             # 没有满这个分位标准，就
             if percentile >= pe_percentile:
                 # pe太低的不卖
-                if pe_ttm < 40:
+                # if pe_ttm < pe_ttm_max:
+                #     continue
+                if pe_ttm < 50:
                     continue
 
                 sell_rate = SELL_POSITION[pe_percentile] / 100
