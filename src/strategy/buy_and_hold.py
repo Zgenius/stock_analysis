@@ -129,10 +129,10 @@ for day in days:
             continue
 
         # 获取开盘价格
-        open_price = date_hitory.get(const.OPEN_PRICE_KEY).item()
+        close_price = date_hitory.get(const.CLOSE_PRICE_KEY).item()
 
         # 小于0的过滤掉
-        if open_price <= 0:
+        if close_price <= 0:
             continue
 
         # 获取当天账户总价值
@@ -146,7 +146,7 @@ for day in days:
             stock_holding_num = user_account.holding_stocks[stock_code].holding_num
 
         # 单只股票持仓价值
-        stock_holding_value = stock_holding_num * open_price
+        stock_holding_value = stock_holding_num * close_price
 
         # 判断买入
         for pe_percentile in BUY_POSITION:
@@ -169,16 +169,16 @@ for day in days:
                 buy_cash = diff_rate * single_limit_cash
 
                 # 确定买入数量
-                number = util.can_buy_num(buy_cash, open_price)
-                buy_result = user_account.buy(stock_code, open_price, number)
+                number = util.can_buy_num(buy_cash, close_price)
+                buy_result = user_account.buy(stock_code, close_price, number)
                 if buy_result:
-                    print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile, "买入金额", number * open_price)
+                    print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile, "买入金额", number * close_price)
                     stock_holding_num += number
 
                 break
         
         # 可能买入成功了，在计算一次单只股票持仓价值
-        stock_holding_value = stock_holding_num * open_price
+        stock_holding_value = stock_holding_num * close_price
         # 今年最大值，如果大于50，就算作50
         # pe_ttm_max = cu.indicator_max(stock_indicator, date, "pe_ttm")
 
@@ -201,10 +201,10 @@ for day in days:
                 sell_cash = diff_rate * single_limit_cash
 
                 # 确定卖出数量
-                number = util.can_buy_num(sell_cash, open_price)
-                sell_result = user_account.sell(stock_code, open_price, number)
+                number = util.can_buy_num(sell_cash, close_price)
+                sell_result = user_account.sell(stock_code, close_price, number)
                 if sell_result:
-                    print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile, "卖出金额", number * open_price)
+                    print("日期：", date, "pe_ttm: ", pe_ttm, "分位: ", percentile, "卖出金额", number * close_price)
 
                 break
     
