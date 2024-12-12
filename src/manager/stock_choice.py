@@ -1,5 +1,5 @@
-import utils.stock_utils as cu
-import utils.calculate_utils as su
+import utils.stock_utils as su
+import utils.calculate_utils as cu
 import constant.eastmoney_constant as const
 import constant.fund_code_constant as fc
 import manager.stock_info_manager as sim
@@ -41,6 +41,8 @@ def get_newest_report_date(end_date):
 3.过滤掉金融，房地产，医药，航空，汽车
 4.平均ROE大于15%的
 5.存在一年ROE小于12%的不要
+
+TODO: 维持当前盈利无须大量投入：购建固定资产、无形资产和其他长期资产支付的现金，占经营活动产生的现金流量净额的比例不高；
 
 选出股票之后，需要查看年报和行业同等地位公司年报，观察公司
 1.盈利是否真实
@@ -84,31 +86,31 @@ def stock_choice(top = 20):
 
     stock_code_list = []
     # 所有股票信息
-    stocks = cu.index_contain_stocks(fc.CODE_ZZ_A500)
+    stocks = su.index_contain_stocks(fc.CODE_ZZ_A500)
     for index, row in stocks.iterrows():
-        stock_info = cu.stock_individual_info(row[const.FUND_CONTAINS_STOCK_CODE])
-        stock_availability = datetime.strptime(str(cu.stock_individual_info_get(stock_info, const.STOCK_AVAILABILITY)), "%Y%m%d")
+        stock_info = su.stock_individual_info(row[const.FUND_CONTAINS_STOCK_CODE])
+        stock_availability = datetime.strptime(str(su.stock_individual_info_get(stock_info, const.STOCK_AVAILABILITY)), "%Y%m%d")
         # 如果上市时间不小于可接受的最早上市时间，就过滤掉
         if stock_availability > earliest_availability:
             continue
 
         # 过滤掉行业：医疗，地产，金融，汽车
-        sector_name = cu.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_SECTOR)
+        sector_name = su.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_SECTOR)
         if sector_name in filter_sector_names:
             continue
 
         # 记录下满足条件的编码
-        stock_code_list.append(cu.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_CODE))
+        stock_code_list.append(su.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_CODE))
 
     # 获取财务数据基础信息
-    stock_code_2_date_2_base_info = cu.stock_2_date_base_info(annual_report_dates)
+    stock_code_2_date_2_base_info = su.stock_2_date_base_info(annual_report_dates)
 
     stock_codes = []
     # 获取最新年报基本信息
     stock_code_2_newest_base_info = {}
     if newest_report_date != None:
         newest_report_date = newest_report_date.strftime("%Y%m%d")
-        stock_code_2_newest_base_info = cu.stock_code_2_base_info(newest_report_date)
+        stock_code_2_newest_base_info = su.stock_code_2_base_info(newest_report_date)
     
     # 判断最新财报的营业收入负增长了-20%，就过滤掉
     for stock_code in stock_code_list:
@@ -127,9 +129,9 @@ def stock_choice(top = 20):
     # 获取股票每年的ROE
     stock_code_2_date_ROE = sim.stock_2_date_indicator(stock_codes, annual_report_dates, stock_code_2_date_2_base_info, "净资产收益率")
     # 每只股票的平均ROE
-    stock_code_2_avg_ROE = su.stock_code_2_avg(stock_code_2_date_ROE)
+    stock_code_2_avg_ROE = cu.stock_code_2_avg(stock_code_2_date_ROE)
     # roe平均值降序排序
-    stock_code_2_avg_ROE = su.dict_sort(stock_code_2_avg_ROE)
+    stock_code_2_avg_ROE = cu.dict_sort(stock_code_2_avg_ROE)
 
     # 满足ROE的股票编码
     satisfied_ROE_stock_codes = []
@@ -155,9 +157,9 @@ def stock_choice(top = 20):
     # 获取股票每年的净利润同比增长率
     stock_code_2_date_YOY_net_profit_growth = sim.stock_2_date_indicator(stock_codes, annual_report_dates, stock_code_2_date_2_base_info, "净利润-同比增长")
     # 每只股票的平均净利润环比增长率
-    stock_code_2_avg_YOY_net_profit_growth = su.stock_code_2_avg(stock_code_2_date_YOY_net_profit_growth)
+    stock_code_2_avg_YOY_net_profit_growth = cu.stock_code_2_avg(stock_code_2_date_YOY_net_profit_growth)
     # 净利润环比增长率降序排序
-    stock_code_2_avg_YOY_net_profit_growth = su.dict_sort(stock_code_2_avg_YOY_net_profit_growth)
+    stock_code_2_avg_YOY_net_profit_growth = cu.dict_sort(stock_code_2_avg_YOY_net_profit_growth)
     
     # 过滤掉异常的净利润同比增长率的股票
     satisfied_net_profit_stock_codes = []
@@ -181,7 +183,8 @@ def stock_choice(top = 20):
 
     # 计算净现比
     stock_code_2_date_OCF = sim.stock_code_date_2_OCF(stock_code_2_date_2_base_info)
-    stock_code_2_avg_OCF = su.stock_code_2_avg(stock_code_2_date_OCF)
+    stock_code_2_avg_OCF = cu.stock_code_2_avg(stock_code_2_date_OCF)
+
     # 净现比合格的股编码
     satisfied_OCF_stock_codes = []
     for stock_code in stock_codes:
@@ -200,6 +203,29 @@ def stock_choice(top = 20):
 
         if not jump_stock_code:
             satisfied_OCF_stock_codes.append(stock_code)
+
+    # 获取现金流表信息
+    stock_code_2_date_2_cash_flow_info = su.stock_2_date_2_cash_flow_info(satisfied_ROE_stock_codes)
+    # 满足无需大量持续资本投入到编码
+    satisfied_not_large_investment = []
+    for stock_code in satisfied_ROE_stock_codes:
+        # 过滤掉没有现金流信息的
+        if stock_code not in stock_code_2_date_2_cash_flow_info:
+            continue
+
+        date_2_cash_flow_info = stock_code_2_date_2_cash_flow_info[stock_code]
+        jump_stock_code = False
+        for cash_flow_record in date_2_cash_flow_info.values():
+            # 长期资产投入，占经营活动现金流比值
+            long_asset_netcash_rate = cash_flow_record["LONG_ASSET_NETCASH_RATE"]
+            if math.isnan(long_asset_netcash_rate):
+                continue
+
+            if long_asset_netcash_rate > 0.3:
+                jump_stock_code = True
+        
+        if not jump_stock_code:
+            satisfied_not_large_investment.append(stock_code)
 
     i = 0
     satisfied_stock_codes = []
@@ -230,6 +256,10 @@ def stock_choice(top = 20):
 
         # 存在任何一年roe过低的过滤掉
         if stock_code not in satisfied_ROE_stock_codes:
+            continue
+
+        # 存在任何一年长期资产投入大于30%就过滤掉
+        if stock_code not in satisfied_not_large_investment:
             continue
 
         # 从roe最高的排序获取，获取top个,多余的就过滤掉,并且满足净利润没有负增长的股票

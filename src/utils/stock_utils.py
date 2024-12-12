@@ -2,6 +2,7 @@ import utils.calculate_utils as cu
 import constant.eastmoney_constant as const
 import akshare as ak
 import time
+from datetime import datetime
 
 # 获取沪深京A股列表
 def stock_list(): 
@@ -94,3 +95,59 @@ def stock_2_date_base_info(date_list):
 # 获取所有股票的枫红和融资次数
 def stock_history_dividend():
     return ak.stock_history_dividend()
+
+# 年度现金流表
+# stock_code需要时带交易所前缀的，比如SH600519，SZ000651
+def stock_cash_flow_sheet_by_yearly(stock_code):
+    return ak.stock_cash_flow_sheet_by_yearly_em(stock_code)
+
+# 股票编码转换，转成带交易所前缀的编码
+def convert_stock_code(stock_code):
+    # 上交所的编码前缀
+    sh_prefix_list = [
+        "6", 
+        "9", 
+        "688"
+    ]
+
+    # 如果是上交所的拼接sh
+    for prefix in sh_prefix_list:
+        if stock_code.startswith(prefix):
+            return "SH" + stock_code
+
+    # 深交所的编码前缀
+    sz_prefix_list = [
+        "000",
+        "002",
+        "300",
+        "200"
+    ]
+
+    # 如果是深交所的，拼接sz
+    for prefix in sz_prefix_list:
+        if stock_code.startswith(prefix):
+            return "SZ" + stock_code
+    
+    return stock_code
+
+# 股票到日期到现金流信息
+def stock_2_date_2_cash_flow_info(stock_codes):
+    if len(stock_codes) == 0:
+        return {}
+    
+    stock_2_date_2_info = {}
+    for stock_code in stock_codes:
+        # 转换成到交易所的编码
+        code = convert_stock_code(stock_code)
+        # 获取现金流表信息
+        cash_flow_sheet = stock_cash_flow_sheet_by_yearly(code)
+        cash_flow_sheet["LONG_ASSET_NETCASH_RATE"] = cash_flow_sheet["CONSTRUCT_LONG_ASSET"] / cash_flow_sheet["TOTAL_OPERATE_INFLOW"]
+
+        stock_2_date_2_info[stock_code] = {}
+        for cash_row in cash_flow_sheet.itertuples():
+            date = datetime.strptime(cash_row.REPORT_DATE, "%Y-%m-%d %H:%M:%S").date()
+            stock_2_date_2_info[stock_code][date] = {
+                "LONG_ASSET_NETCASH_RATE": cash_row.LONG_ASSET_NETCASH_RATE
+            }
+
+    return stock_2_date_2_info

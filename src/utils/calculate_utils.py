@@ -151,20 +151,20 @@ def dict_sort(data):
 def stock_code_2_avg(stock_code_2_date_indicator):
     stock_code_2_avg_indicator = {}
     for stock_code, date_2_indicator in stock_code_2_date_indicator.items():
-        total_ROE = 0
+        total = 0
         for indicator in date_2_indicator.values():
             # 过滤掉ROE，ROE是nan的在亏损
             if math.isnan(indicator):
                 continue
             # ROE汇总
-            total_ROE += indicator
+            total += indicator
 
         total_len = len(date_2_indicator)
 
         if total_len == 0:
             stock_code_2_avg_indicator[stock_code] = 0
         else:
-            stock_code_2_avg_indicator[stock_code] = total_ROE / total_len
+            stock_code_2_avg_indicator[stock_code] = total / total_len
     
     return stock_code_2_avg_indicator
 

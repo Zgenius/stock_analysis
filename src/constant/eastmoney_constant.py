@@ -95,3 +95,15 @@ STOCK_INDIVIDUAL_SECTOR_NAMES = [
     "家用轻工",
     "电子元件"
 ]
+
+# 东方财富，现金流表返回字段的含义
+CASH_FLOW_SHEET_MAP = {
+    "CONSTRUCT_LONG_ASSET": "购建固定资产、无形资产和其他长期资产支付的现金",
+    "REPORT_DATE": "报告日期",
+    "NETCASH_OPERATE": "经营活动产生的现金流量净额",
+    "TOTAL_OPERATE_INFLOW": "经营活动现金流入小计"
+}
+
+CASH_FLOW_SHEET_COMPUTE_MAP = {
+    "LONG_ASSET_NETCASH_RATE": "购建固定资产、无形资产和其他长期资产支付的现金占用经营活动现金流入的比值"
+}
