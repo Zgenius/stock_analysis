@@ -29,7 +29,7 @@ SELL_POSITION = {
 }
 
 # 选股
-stock_codes = sc.stock_choice(5)
+stock_codes = sc.stock_choice(10)
 
 # stock_codes = [
 #     # "000333", # 22%

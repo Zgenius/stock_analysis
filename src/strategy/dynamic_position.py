@@ -38,50 +38,6 @@ HOLDING_POSITION = {
 SELL_POSITION = dict(zip(HOLDING_POSITION.values(), HOLDING_POSITION.keys()))
 
 # 选股
-# stock_codes = sc.stock_choice()
-# print(stock_codes)
-# 当天的结果已经有了
-# stock_codes = [
-#     "000333",
-#     "000651",
-#     "000661",
-#     "002304",
-#     "002415",
-#     "300628",
-#     "600036",
-#     "600519",
-#     "600563",
-#     "600690",
-#     "600885",
-#     "600887",
-#     "603288",
-#     "603605",
-#     "603833",
-#     "603899"
-# ]
-
-# stock_codes = [
-#     "000333", # 22%
-#     "000651", # 26%
-#     # "000661", # 18%
-#     "002304", # 20%
-#     # "002415", # 19%
-#     "300628", # 25%
-#     # "600036", # 16%
-#     "600519", # 30%
-#     "600563", # 20%
-#     # "600690", # 17%
-#     # "600885", # 17%
-#     "600887", # 20%
-#     "603288", # 20%
-#     "603605", # 25%
-#     # "603833", # 15%
-#     # "603899" # 15%
-# ]
-
-# stock_codes = ['300628', '603288', '600519', '000651', '000333', '600887', '603369', '600690', '002475']
-
-# 选股
 stock_codes = sc.stock_choice(10)
 print(stock_codes)
 
@@ -144,7 +100,6 @@ for day in days:
         stock_daily_history = stock_code_2_history_info[stock_code]
 
         # 获取个股所有的除权除息信息
-        # stock_ex_rights = stock_code_2_ex_rights[stock_code]
         ex_rights_resutl = cu.ex_rights(stock_code, user_account, table, stock_code_2_ex_rights, date)
 
         date_indicator = stock_indicator[stock_indicator["trade_date"] == date]
@@ -222,12 +177,7 @@ for day in days:
                 number = util.can_buy_num(sell_cash, close_price)
                 user_account.sell(stock_code, close_price, number)
                 # 记录卖出分位
-                # stock_code_2_sell_rate[stock_code].append(pe_percentile)
-                # if SELL_BUY_PAIR[pe_percentile] in stock_code_2_buy_rate[stock_code]:
-                #     stock_code_2_buy_rate[stock_code].remove(SELL_BUY_PAIR[pe_percentile])
                 break
 
 print(user_account)
-# print("网格总盈利： ", table.get_total_profit())
-# print("年度盈利: ", table.get_profit_statistics())
 exit(0)

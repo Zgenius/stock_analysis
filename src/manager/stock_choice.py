@@ -41,8 +41,7 @@ def get_newest_report_date(end_date):
 3.过滤掉金融，房地产，医药，航空，汽车
 4.平均ROE大于15%的
 5.存在一年ROE小于12%的不要
-
-TODO: 维持当前盈利无须大量投入：购建固定资产、无形资产和其他长期资产支付的现金，占经营活动产生的现金流量净额的比例不高；
+6.购建固定资产、无形资产和其他长期资产支付的现金, 占经营活动产生的现金流入超过20%的不要
 
 选出股票之后，需要查看年报和行业同等地位公司年报，观察公司
 1.盈利是否真实
@@ -126,7 +125,7 @@ def stock_choice(top = 20):
         
         stock_codes.append(stock_code)
 
-    # 获取股票每年的ROE
+    # 获取股票每年的ROE @TODO 过滤掉极高的，比如600399的964.67 roe
     stock_code_2_date_ROE = sim.stock_2_date_indicator(stock_codes, annual_report_dates, stock_code_2_date_2_base_info, "净资产收益率")
     # 每只股票的平均ROE
     stock_code_2_avg_ROE = cu.stock_code_2_avg(stock_code_2_date_ROE)
@@ -146,7 +145,7 @@ def stock_choice(top = 20):
         jump_stock_code = False
         for ROE in date_2_ROE.values():
             # ROE存在小于8%就跳过这只股票
-            if math.isnan(ROE) or ROE < 12:
+            if math.isnan(ROE) or ROE < 12 or ROE > 100:
                 jump_stock_code = True
                 break
 

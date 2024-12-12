@@ -2,6 +2,8 @@ import utils.date_utils as du
 import utils.stock_utils as su
 import datetime
 import akshare as ak
+import numpy as np
+import pandas as pd
 
 # date1 = datetime.datetime(2015, 1, 1).date()
 # date2 = datetime.datetime(2017, 1, 1).date()
@@ -31,6 +33,14 @@ import akshare as ak
 stock_cash_flow_sheet_by_yearly_em_df = ak.stock_cash_flow_sheet_by_yearly_em(symbol="sz000651")
 # 购买固定资产、无形资产和其他长期资产支付的现金
 # print(stock_cash_flow_sheet_by_yearly_em_df)
-stock_cash_flow_sheet_by_yearly_em_df["long_asset_netcash_rate"] = stock_cash_flow_sheet_by_yearly_em_df["CONSTRUCT_LONG_ASSET"] / stock_cash_flow_sheet_by_yearly_em_df["TOTAL_OPERATE_INFLOW"]
-print(stock_cash_flow_sheet_by_yearly_em_df[["CONSTRUCT_LONG_ASSET", "REPORT_DATE", "NETCASH_OPERATE", "TOTAL_OPERATE_INFLOW", "long_asset_netcash_rate"]])
+# stock_cash_flow_sheet_by_yearly_em_df["long_asset_netcash_rate"] = stock_cash_flow_sheet_by_yearly_em_df["CONSTRUCT_LONG_ASSET"] / stock_cash_flow_sheet_by_yearly_em_df["TOTAL_OPERATE_INFLOW"]
+# cash_flow_sheet["LONG_ASSET_NETCASH_RATE"] = cash_flow_sheet["CONSTRUCT_LONG_ASSET"] / cash_flow_sheet["TOTAL_OPERATE_INFLOW"]
+new_columns = {
+    "LONG_ASSET_NETCASH_RATE": stock_cash_flow_sheet_by_yearly_em_df["CONSTRUCT_LONG_ASSET"] / stock_cash_flow_sheet_by_yearly_em_df["TOTAL_OPERATE_INFLOW"]
+}
+
+# 使用 pd.concat 一次性将新列加入
+stock_cash_flow_sheet_by_yearly_em_df = pd.concat([stock_cash_flow_sheet_by_yearly_em_df, pd.DataFrame(new_columns)], axis=1)
+# print(stock_cash_flow_sheet_by_yearly_em_df)
+print(stock_cash_flow_sheet_by_yearly_em_df[["CONSTRUCT_LONG_ASSET", "REPORT_DATE", "NETCASH_OPERATE", "TOTAL_OPERATE_INFLOW", "LONG_ASSET_NETCASH_RATE"]])
 # print(su.stock_2_date_2_cash_flow_info(["600519"]))

@@ -2,6 +2,7 @@ import utils.calculate_utils as cu
 import constant.eastmoney_constant as const
 import akshare as ak
 import time
+import pandas as pd
 from datetime import datetime
 
 # 获取沪深京A股列表
@@ -141,7 +142,13 @@ def stock_2_date_2_cash_flow_info(stock_codes):
         code = convert_stock_code(stock_code)
         # 获取现金流表信息
         cash_flow_sheet = stock_cash_flow_sheet_by_yearly(code)
-        cash_flow_sheet["LONG_ASSET_NETCASH_RATE"] = cash_flow_sheet["CONSTRUCT_LONG_ASSET"] / cash_flow_sheet["TOTAL_OPERATE_INFLOW"]
+
+        # 需要合并的字段
+        extra_columns = {
+            "LONG_ASSET_NETCASH_RATE": cash_flow_sheet["CONSTRUCT_LONG_ASSET"] / cash_flow_sheet["TOTAL_OPERATE_INFLOW"]
+        }
+        # 字段合并到原来的数据中
+        cash_flow_sheet = pd.concat([cash_flow_sheet, pd.DataFrame(extra_columns)], axis=1)
 
         stock_2_date_2_info[stock_code] = {}
         for cash_row in cash_flow_sheet.itertuples():
