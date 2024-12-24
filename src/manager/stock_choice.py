@@ -7,19 +7,6 @@ import utils.date_utils as du
 import math
 from datetime import datetime, timedelta
 
-# 获取年报日期
-def get_annual_report_dates(end_date):
-    # 十年前
-    ten_year_ago = end_date - timedelta(days = 365 * 10)
-    # 获取所有年份
-    year_dates = du.get_between_years(ten_year_ago, end_date)
-    
-    annual_report_dates = []
-    for year_date in year_dates:
-        annual_report_dates.append(datetime(year_date.year, 12, 31).strftime("%Y%m%d"))
-    
-    return annual_report_dates
-
 # 获取最新财报日期
 def get_newest_report_date(end_date):
     report_dates = [
@@ -53,7 +40,7 @@ def stock_choice(top = 20):
     # 去年
     last_year = now - timedelta(days = 365)
     # 十年前
-    annual_report_dates = get_annual_report_dates(last_year)
+    annual_report_dates = du.get_annual_report_dates(last_year, 10)
 
     newest_report_date = get_newest_report_date(now)
 
@@ -228,6 +215,7 @@ def stock_choice(top = 20):
 
     i = 0
     satisfied_stock_codes = []
+    satisfied_stock_info = {}
     for stock_code, avg_ROE in stock_code_2_avg_ROE.items():
         # 获取分红融资次数信息
         # stock_dividend = stock_history_dividend[stock_history_dividend["代码"] == stock_code]
@@ -264,6 +252,16 @@ def stock_choice(top = 20):
         # 从roe最高的排序获取，获取top个,多余的就过滤掉,并且满足净利润没有负增长的股票
         if i < top:
             satisfied_stock_codes.append(stock_code)
-            i += 1
+            satisfied_stock_info[stock_code] = {
+                "avg_ROE": avg_ROE
+            }
 
-    return satisfied_stock_codes
+            i += 1
+    
+    return {
+        # 满足条件的股票编码
+        "stock_codes": satisfied_stock_codes,
+        # 一些需要用到的信息，集中记录
+        "stock_code_2_info": satisfied_stock_info,
+        "stock_code_2_date_2_base_info": stock_code_2_date_2_base_info[stock_code]
+    }

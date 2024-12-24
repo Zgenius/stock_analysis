@@ -1,5 +1,3 @@
-import utils.stock_utils as su
-
 # 获取股票的基础信息
 def stock_2_date_indicator(stock_codes, date_list, stock_code_2_date_2_base_info, indicator):
     # 循环查询每个日期的净资产收益率

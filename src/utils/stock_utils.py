@@ -71,7 +71,7 @@ def stock_individual_info_get(stock_info, key):
 def stock_individual_ex_rights_detail(symbol):
     return ak.stock_fhps_detail_em(symbol)
 
-# 获取股票的财务基本信息
+# 获取股票的财务基本信息, (序号,股票代码,股票简称,每股收益,营业收入-营业收入,营业收入-同比增长,营业收入-季度环比增长,净利润-净利润,净利润-同比增长,净利润-季度环比增长,每股净资产,净资产收益率,每股经营现金流量,销售毛利率,所处行业,最新公告日期)
 def stock_2_date_base_info(date_list):
     # 循环查询每个日期的净资产收益率
     stock_code_2_date_2_base_info = {}

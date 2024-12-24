@@ -55,3 +55,16 @@ def get_between_years(start_date, end_date):
             current_date += timedelta(days=365)
 
     return years
+
+# 获取年报日期
+def get_annual_report_dates(end_date, year_number):
+    # n年前
+    ten_year_ago = end_date - timedelta(days = 365 * year_number)
+    # 获取所有年份
+    year_dates = get_between_years(ten_year_ago, end_date)
+    
+    annual_report_dates = []
+    for year_date in year_dates:
+        annual_report_dates.append(datetime(year_date.year, 12, 31).strftime("%Y%m%d"))
+    
+    return annual_report_dates

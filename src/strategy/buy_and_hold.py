@@ -29,7 +29,8 @@ SELL_POSITION = {
 }
 
 # 选股
-stock_codes = sc.stock_choice(10)
+choice_info = sc.stock_choice(10)
+stock_codes = choice_info["stock_codes"]
 
 # stock_codes = [
 #     # "000333", # 22%
@@ -62,11 +63,6 @@ print(user_account)
 # 初始化网格记录表
 table = grid_table()
 
-# 记录股票，买入的分位，每个分位买一次
-stock_code_2_buy_rate = {}
-# 记录股票，卖出的分位，每个分位卖一次
-stock_code_2_sell_rate = {}
-
 # 记录股票编码到指标类信息的映射
 stock_code_2_indicator = {}
 # 股票编码到历史数据的映射表
@@ -78,14 +74,6 @@ for stock_code in stock_codes:
     stock_code_2_indicator[stock_code] = su.stock_individual_indicator(stock_code)
     stock_code_2_history_info[stock_code] = su.stock_daily_history(stock_code, START_DATE, END_DATE)
     stock_code_2_ex_rights[stock_code] = su.stock_individual_ex_rights_detail(stock_code)
-
-    # 没有记录，初始化下
-    if stock_code not in stock_code_2_buy_rate:
-        stock_code_2_buy_rate[stock_code] = []
-
-    # 没有记录，初始化下
-    if stock_code not in stock_code_2_sell_rate:
-        stock_code_2_sell_rate[stock_code] = []
 
     time.sleep(1)
 
@@ -128,7 +116,7 @@ for day in days:
         if date_hitory.empty:
             continue
 
-        # 获取开盘价格
+        # 获取收盘价格
         close_price = date_hitory.get(const.CLOSE_PRICE_KEY).item()
 
         # 小于0的过滤掉
@@ -208,6 +196,5 @@ for day in days:
 
                 break
     
-
 print("最后交易日开盘的总市值：", total_value)
 print(user_account)
