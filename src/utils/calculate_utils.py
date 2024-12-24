@@ -182,3 +182,7 @@ def indicator_max(indicator, date, key):
         max = 50
 
     return max
+
+# 判断值是不是有效值,如果是nan，就返回默认值
+def get_nonnan_value(value, default):
+    return value if not math.isnan(value) else default
