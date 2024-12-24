@@ -13,7 +13,6 @@ def load_config(config_file=CONFIG_DIR + 'db.yaml'):
         config = yaml.safe_load(f)
     return config['stock_analysis']
 
-# mysql_db = MySQLDatabase('stock_analysis', user='cair', password='cair@cloud', host='39.105.64.181', port=8306)
 mysql_db = MySQLDatabase(**load_config())
 
 class BaseModel(Model):
