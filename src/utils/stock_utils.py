@@ -33,7 +33,11 @@ def stock_code_2_info():
 
 # 获取股票某个季度的基本面信息
 def stock_code_2_base_info(date):
-    base_info = ak.stock_yjbb_em(date)
+    try:
+        base_info = ak.stock_yjbb_em(date)
+    except Exception:
+        return {}
+
     stock_code_2_base_info = {}
     for index, row in base_info.iterrows():
         stock_code_2_base_info[row[const.STOCK_INDIVIDUAL_CODE]] = row

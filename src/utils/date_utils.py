@@ -68,3 +68,19 @@ def get_annual_report_dates(end_date, year_number):
         annual_report_dates.append(datetime(year_date.year, 12, 31).strftime("%Y%m%d"))
     
     return annual_report_dates
+
+# 获取年报日期
+def get_report_dates(end_date, year_number):
+    # n年前
+    ten_year_ago = end_date - timedelta(days = 365 * year_number)
+    # 获取所有年份
+    year_dates = get_between_years(ten_year_ago, end_date)
+    
+    report_dates = []
+    for year_date in year_dates:
+        report_dates.append(datetime(year_date.year, 3, 31).strftime("%Y%m%d"))
+        report_dates.append(datetime(year_date.year, 7, 30).strftime("%Y%m%d"))
+        report_dates.append(datetime(year_date.year, 9, 30).strftime("%Y%m%d"))
+        report_dates.append(datetime(year_date.year, 12, 31).strftime("%Y%m%d"))
+    
+    return report_dates

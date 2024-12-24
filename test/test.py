@@ -1,13 +1,19 @@
-from peewee import MySQLDatabase, DatabaseProxy
-from dao.stock_basic_info import stock_basic_info
-from datetime import datetime
+import utils.stock_utils as su
+import utils.calculate_utils as cu
+import constant.eastmoney_constant as const
+import constant.fund_code_constant as fc
+import manager.stock_info_manager as sim
+import utils.date_utils as du
+import math
+from datetime import datetime, timedelta
 
-stock_info = stock_basic_info()
-stock_info.symbol = "600519"
-stock_info.name = "贵州茅台"
-stock_info.sector = "食品饮料"
-stock_info.listing_time = datetime(2000, 1, 1)
-stock_info.total_share_capital = 1200000000
-stock_info.extra_info = "{}"
+now = datetime.now()
+# 去年
+last_year = now - timedelta(days = 365)
 
-print(stock_info.save())
+# 十年前
+annual_report_dates = du.get_annual_report_dates(last_year, 0)
+
+# 获取财务数据基础信息
+stock_code_2_date_2_base_info = su.stock_2_date_base_info(annual_report_dates)
+print(stock_code_2_date_2_base_info["600519"])
