@@ -79,7 +79,7 @@ def get_report_dates(end_date, year_number):
     report_dates = []
     for year_date in year_dates:
         report_dates.append(datetime(year_date.year, 3, 31).strftime("%Y%m%d"))
-        report_dates.append(datetime(year_date.year, 7, 30).strftime("%Y%m%d"))
+        report_dates.append(datetime(year_date.year, 6, 30).strftime("%Y%m%d"))
         report_dates.append(datetime(year_date.year, 9, 30).strftime("%Y%m%d"))
         report_dates.append(datetime(year_date.year, 12, 31).strftime("%Y%m%d"))
     
