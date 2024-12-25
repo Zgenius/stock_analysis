@@ -114,7 +114,7 @@ def ex_rights(stock_code, user_account, grid_table, ex_right_info, date):
                 grid_table.stock_code_2_records[stock_code][index] = record
     
     # 配股，每个单位是10股
-    right_issue = ex_right.get("送转股份-转股比例").item()
+    right_issue = ex_right.get("送转股份-送转总比例").item()
     if not math.isnan(right_issue):
         # 每股配股多少份
         right_issue = right_issue / 10

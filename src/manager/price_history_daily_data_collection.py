@@ -25,8 +25,6 @@ dayChunks = group_list_by_fixed_length(days, 1000)
 report_briefs = financial_report_brief.select(financial_report_brief.symbol, financial_report_brief.name).distinct().order_by(financial_report_brief.symbol.asc()).execute()
 for report_brief in report_briefs:
     print(report_brief.symbol)
-    if report_brief.symbol <= "000991":
-        continue
     for dayChunk in dayChunks:
         try:
             history_daily = su.stock_daily_history(report_brief.symbol, dayChunk[0].strftime("%Y%m%d"), dayChunk[-1].strftime("%Y%m%d"))

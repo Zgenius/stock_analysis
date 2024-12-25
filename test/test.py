@@ -7,9 +7,9 @@ import utils.date_utils as du
 import math
 from datetime import datetime, timedelta
 
-START_DATE = "20241201"
-END_DATE = datetime.now().strftime("%Y%m%d")
 stock_code = "600519"
 
-history = su.stock_daily_history(stock_code, START_DATE, END_DATE)
-print(history)
+rights = su.stock_individual_ex_rights_detail(stock_code)
+for ignore, right in rights.iterrows():
+    print(right)
+    # exit()
