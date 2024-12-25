@@ -1,0 +1,21 @@
+CREATE TABLE `stock_price_history_daily` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `symbol` varchar(12) NOT NULL DEFAULT '' COMMENT '股票编码',
+  `name` varchar(12) NOT NULL DEFAULT '' COMMENT '股票名称',
+  `trade_date` timestamp NOT NULL COMMENT '交易日期',
+  `opening_price` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '开盘价',
+  `closing_price` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '收盘价',
+  `high_price` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '最高价',
+  `low_price` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '最低价',
+  `volume` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '成交量',
+  `turnover` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '成交额',
+  `amplitude` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '振幅',
+  `percentage_change` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '涨跌幅',
+  `price_change` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '涨跌额',
+  `turnover_rate` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '换手率',
+  `extra_info` json DEFAULT NULL COMMENT '扩展信息',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `symbol_tradedate` (`symbol`, `trade_date`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COMMENT='股票价格历史数据-日';

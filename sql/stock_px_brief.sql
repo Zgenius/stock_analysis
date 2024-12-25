@@ -1,0 +1,19 @@
+CREATE TABLE `stock_px_brief` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `symbol` varchar(12) NOT NULL DEFAULT '' COMMENT '股票编码',
+  `name` varchar(12) NOT NULL DEFAULT '' COMMENT '股票名称',
+  `trade_date` timestamp NOT NULL COMMENT '交易日期',
+  `pe` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '市盈率',
+  `pe_ttm` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '市盈率TTM',
+  `pb` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '市净率',
+  `ps` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '市销率',
+  `ps_ttm` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '市销率TTM',
+  `dv_ratio` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '股息率',
+  `dv_ttm` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '股息率TTM',
+  `total_mv` double(20, 6) NOT NULL DEFAULT 0.0 COMMENT '总市值',
+  `extra_info` json DEFAULT NULL COMMENT '扩展信息',
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `symbol_tradedate` (`symbol`, `trade_date`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COMMENT='股票估值摘要';
