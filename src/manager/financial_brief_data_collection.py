@@ -1,9 +1,10 @@
 from dao.financial_report_brief import FinancialReportBrief
-import utils.stock_utils as su
-import utils.date_utils as du
 from time import sleep
 from datetime import datetime
+import utils.stock_utils as su
+import utils.date_utils as du
 import math
+import utils.calculate_utils as cu
 
 now = datetime.now()
 # 财报日期
@@ -22,13 +23,13 @@ for date in annual_report_dates:
                 'symbol': symbol,
                 'name': row.get("股票简称"),
                 'report_time': datetime.strptime(date, "%Y%m%d"),
-                'operating_revenue': row.get("营业收入-营业收入") if not math.isnan(row.get("营业收入-营业收入")) else 0.0,
-                'net_profit': row.get("净利润-净利润") if not math.isnan(row.get("净利润-净利润")) else 0.0,
-                'net_asset_value_per_share': row.get("每股净资产") if not math.isnan(row.get("每股净资产")) else 0.0,
-                'earnings_per_share': row.get("每股收益") if not math.isnan(row.get("每股收益")) else 0.0,
-                'operating_cash_flow_per_share': row.get("每股经营现金流量") if not math.isnan(row.get("每股经营现金流量")) else 0.0,
-                'return_on_equity': row.get("净资产收益率") if not math.isnan(row.get("净资产收益率")) else 0.0,
-                'gross_profit_ratio': row.get("销售毛利率") if not math.isnan(row.get("销售毛利率")) else 0.0,
+                'operating_revenue': cu.get_nonnan_value(row.get("营业收入-营业收入"), 0.0),
+                'net_profit': cu.get_nonnan_value(row.get("净利润-净利润"), 0.0),
+                'net_asset_value_per_share': cu.get_nonnan_value(row.get("每股净资产"), 0.0),
+                'earnings_per_share': cu.get_nonnan_value(row.get("每股收益"), 0.0),
+                'operating_cash_flow_per_share': cu.get_nonnan_value(row.get("每股经营现金流量"), 0.0),
+                'return_on_equity': cu.get_nonnan_value(row.get("净资产收益率"), 0.0),
+                'gross_profit_ratio': cu.get_nonnan_value(row.get("销售毛利率"), 0.0),
                 'extra_info': "{}"
             }
             brief_list.append(brief)

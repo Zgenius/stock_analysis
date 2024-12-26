@@ -1,4 +1,3 @@
-from sqlalchemy.dialects.mysql import insert
 from dao.stock_basic_info import StockBasicInfo
 from time import sleep
 import utils.stock_utils as su
