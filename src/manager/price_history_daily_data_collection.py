@@ -1,16 +1,12 @@
 from dao.financial_report_brief import FinancialReportBrief
 from dao.stock_price_history_daily import StockPriceHistoryDaily
-from datetime import datetime
 import utils.stock_utils as su
-import constant.fund_code_constant as fc
-import constant.eastmoney_constant as const
 import utils.date_utils as du
 import utils.calculate_utils as cu
 from time import sleep
-from datetime import datetime, timedelta
-from dao.financial_report_brief import FinancialReportBrief
+from datetime import datetime
+from manager.session_manager import SessionManager
 from utils.util import group_list_by_fixed_length
-import math
 
 # 时间范围
 START_DATE = "19880101"
@@ -20,9 +16,10 @@ days.sort()
 # 1000天一组
 dayChunks = group_list_by_fixed_length(days, 1000)
 
-
 # 获取所有股票编码
-report_briefs = FinancialReportBrief.select(FinancialReportBrief.symbol, FinancialReportBrief.name).distinct().order_by(FinancialReportBrief.symbol.asc()).execute()
+with SessionManager.get_session() as session:
+    report_briefs = session.query(FinancialReportBrief.symbol, FinancialReportBrief.name).distinct().order_by(FinancialReportBrief.symbol.asc()).all()
+
 for report_brief in report_briefs:
     print(report_brief.symbol)
     for dayChunk in dayChunks:
@@ -30,29 +27,43 @@ for report_brief in report_briefs:
             history_daily = su.stock_daily_history(report_brief.symbol, dayChunk[0].strftime("%Y%m%d"), dayChunk[-1].strftime("%Y%m%d"))
         except Exception as e:
             continue
-        if history_daily is None:
+        if history_daily is None or len(history_daily) == 0:
             continue
 
-        if len(history_daily) == 0:
-            continue
         stock_history_list = []
-        for ignore, hisotry in history_daily.iterrows():
-            stock_history = StockPriceHistoryDaily()
-            stock_history.symbol = report_brief.symbol
-            stock_history.name = report_brief.name
-            stock_history.trade_date = hisotry.get("日期")
-            stock_history.opening_price = hisotry.get("开盘")
-            stock_history.closing_price = hisotry.get("收盘")
-            stock_history.high_price = hisotry.get("最高")
-            stock_history.low_price = hisotry.get("最低")
-            stock_history.volume = hisotry.get("成交量")
-            stock_history.turnover = hisotry.get("成交额")
-            stock_history.amplitude = hisotry.get("振幅")
-            stock_history.percentage_change = hisotry.get("涨跌幅")
-            stock_history.price_change = hisotry.get("涨跌额")
-            stock_history.turnover_rate = hisotry.get("换手率")
-            stock_history.extra_info = "{}"
+        for ignore, history in history_daily.iterrows():
+            stock_history = {
+                'symbol': report_brief.symbol,
+                'name': report_brief.name,
+                'trade_date': history.get("日期"),
+                'opening_price': history.get("开盘"),
+                'closing_price': history.get("收盘"),
+                'high_price': history.get("最高"),
+                'low_price': history.get("最低"),
+                'volume': history.get("成交量"),
+                'turnover': history.get("成交额"),
+                'amplitude': history.get("振幅"),
+                'percentage_change': history.get("涨跌幅"),
+                'price_change': history.get("涨跌额"),
+                'turnover_rate': history.get("换手率"),
+                'extra_info': "{}"
+            }
             stock_history_list.append(stock_history)
         
-        StockPriceHistoryDaily.bulk_create(stock_history_list, 1000)
+        # 批量插入并在冲突时更新
+        update_fields = [
+            'name',
+            'opening_price',
+            'closing_price',
+            'high_price',
+            'low_price',
+            'volume',
+            'turnover',
+            'amplitude',
+            'percentage_change',
+            'price_change',
+            'turnover_rate',
+            'extra_info'
+        ]
+        StockPriceHistoryDaily.batch_create(stock_history_list, update_fields)
         sleep(0.01)

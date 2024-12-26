@@ -1,26 +1,17 @@
-from dao.BaseModel import BaseModel
-from peewee import CharField, DateTimeField, BigIntegerField, TextField, DoubleField
+from sqlalchemy import Column, String, DateTime, BigInteger, Text, Float
+from .base_model import BaseModel
 
 class StockPxBrief(BaseModel):
-    id = BigIntegerField()
-    symbol = CharField(max_length=12)
-    name = CharField(max_length=12)
-    # 交易日
-    trade_date = DateTimeField()
-    # 市盈率
-    pe = DoubleField()
-    # 市盈率TTM
-    pe_ttm = DoubleField()
-    # 市净率
-    pb = DoubleField()
-    # 市销率
-    ps = DoubleField()
-    # 市销率TTM
-    ps_ttm = DoubleField()
-    # 股息率
-    dv_ratio = DoubleField()
-    # 股息率TTM
-    dv_ttm = DoubleField()
-    # 总市值
-    total_mv = DoubleField()
-    extra_info = TextField()
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    symbol = Column(String(12), index=True)
+    name = Column(String(12))
+    trade_date = Column(DateTime)  # 交易日
+    pe = Column(Float)  # 市盈率
+    pe_ttm = Column(Float)  # 市盈率TTM
+    pb = Column(Float)  # 市净率
+    ps = Column(Float)  # 市销率
+    ps_ttm = Column(Float)  # 市销率TTM
+    dv_ratio = Column(Float)  # 股息率
+    dv_ttm = Column(Float)  # 股息率TTM
+    total_mv = Column(Float)  # 总市值
+    extra_info = Column(Text)

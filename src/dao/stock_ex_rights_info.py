@@ -1,13 +1,13 @@
-from dao.BaseModel import BaseModel
-from peewee import CharField, DateTimeField, BigIntegerField, TextField, DoubleField
+from sqlalchemy import Column, String, DateTime, BigInteger, Text, Float
+from .base_model import BaseModel
 
 class StockExRightsInfo(BaseModel):
-    id = BigIntegerField
-    symbol = CharField(max_length=12)
-    name = CharField(max_length=12)
-    report_date = DateTimeField()
-    ex_rights_date = DateTimeField()
-    share_transfer_ratio = DoubleField()
-    dividend_ratio = DoubleField()
-    dividend_yield = DoubleField()
-    extra_info = TextField()
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    symbol = Column(String(12), unique=True, index=True)
+    name = Column(String(12))
+    report_date = Column(DateTime)
+    ex_rights_date = Column(DateTime)
+    share_transfer_ratio = Column(Float)
+    dividend_ratio = Column(Float)
+    dividend_yield = Column(Float)
+    extra_info = Column(Text)

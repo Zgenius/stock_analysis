@@ -1,13 +1,11 @@
-from dao.BaseModel import BaseModel
-from peewee import CharField, DateTimeField, BigIntegerField, TextField
+from sqlalchemy import Column, String, DateTime, BigInteger, Text
+from .base_model import BaseModel
 
 class StockBasicInfo(BaseModel):
-    id = BigIntegerField
-    symbol = CharField(max_length=12)
-    name = CharField(max_length=12)
-    sector = CharField(max_length=128)
-    listing_time = DateTimeField()
-    total_share_capital = BigIntegerField()
-    extra_info = TextField()
-    # create_time = DateTimeField()
-    # update_time = DateTimeField(null = True)
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    symbol = Column(String(12), unique=True, index=True)
+    name = Column(String(12))
+    sector = Column(String(128))
+    listing_time = Column(DateTime)
+    total_share_capital = Column(BigInteger)
+    extra_info = Column(Text)

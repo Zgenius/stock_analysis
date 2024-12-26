@@ -1,12 +1,8 @@
-from dao.stock_basic_info import StockBasicInfo
-from datetime import datetime
+from dao.financial_report_brief import FinancialReportBrief
 import utils.stock_utils as su
-import constant.fund_code_constant as fc
-import constant.eastmoney_constant as const
 import utils.date_utils as du
 from time import sleep
-from datetime import datetime, timedelta
-from dao.financial_report_brief import FinancialReportBrief
+from datetime import datetime
 import math
 
 now = datetime.now()
@@ -22,18 +18,21 @@ for date in annual_report_dates:
     brief_list = []
     for symbol, date2row in stock_code_2_date_2_base_info.items():
         for row in date2row.values():
-            brief = FinancialReportBrief()
-            brief.symbol = symbol
-            brief.name = row.get("股票简称")
-            brief.report_time = datetime.strptime(date, "%Y%m%d")
-            brief.operating_revenue = row.get("营业收入-营业收入") if not math.isnan(row.get("营业收入-营业收入")) else 0.0
-            brief.net_profit = row.get("净利润-净利润") if not math.isnan(row.get("净利润-净利润")) else 0.0
-            brief.net_asset_value_per_share = row.get("每股净资产") if not math.isnan(row.get("每股净资产")) else 0.0
-            brief.earnings_per_share = row.get("每股收益") if not math.isnan(row.get("每股收益")) else 0.0
-            brief.operating_cash_flow_per_share = row.get("每股经营现金流量") if not math.isnan(row.get("每股经营现金流量")) else 0.0
-            brief.return_on_equity = row.get("净资产收益率") if not math.isnan(row.get("净资产收益率")) else 0.0
-            brief.gross_profit_ratio = row.get("销售毛利率") if not math.isnan(row.get("销售毛利率")) else 0.0
-            brief.extra_info = "{}"
+            brief = {
+                'symbol': symbol,
+                'name': row.get("股票简称"),
+                'report_time': datetime.strptime(date, "%Y%m%d"),
+                'operating_revenue': row.get("营业收入-营业收入") if not math.isnan(row.get("营业收入-营业收入")) else 0.0,
+                'net_profit': row.get("净利润-净利润") if not math.isnan(row.get("净利润-净利润")) else 0.0,
+                'net_asset_value_per_share': row.get("每股净资产") if not math.isnan(row.get("每股净资产")) else 0.0,
+                'earnings_per_share': row.get("每股收益") if not math.isnan(row.get("每股收益")) else 0.0,
+                'operating_cash_flow_per_share': row.get("每股经营现金流量") if not math.isnan(row.get("每股经营现金流量")) else 0.0,
+                'return_on_equity': row.get("净资产收益率") if not math.isnan(row.get("净资产收益率")) else 0.0,
+                'gross_profit_ratio': row.get("销售毛利率") if not math.isnan(row.get("销售毛利率")) else 0.0,
+                'extra_info': "{}"
+            }
             brief_list.append(brief)
     
-    FinancialReportBrief.bulk_create(brief_list)
+    # 批量插入数据
+    update_fields = ["name", "operating_revenue", "net_profit", "net_asset_value_per_share", "earnings_per_share", "operating_cash_flow_per_share", "return_on_equity", "gross_profit_ratio", "extra_info"]
+    FinancialReportBrief.batch_create(brief_list, update_fields)

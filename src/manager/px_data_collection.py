@@ -1,44 +1,54 @@
-from dao.stock_basic_info import StockBasicInfo
 from dao.stock_px_brief import StockPxBrief
 from dao.financial_report_brief import FinancialReportBrief
-from datetime import datetime
 import utils.stock_utils as su
-import constant.fund_code_constant as fc
-import constant.eastmoney_constant as const
-import utils.date_utils as du
 import utils.calculate_utils as cu
 from time import sleep
-from datetime import datetime, timedelta
-from dao.financial_report_brief import FinancialReportBrief
-import math
+from manager.session_manager import SessionManager
 
 # 获取所有股票编码
-report_briefs = FinancialReportBrief.select(FinancialReportBrief.symbol, FinancialReportBrief.name).distinct().order_by(FinancialReportBrief.symbol.asc()).execute()
+with SessionManager.get_session() as session:
+    report_briefs = session.query(FinancialReportBrief.symbol, FinancialReportBrief.name).distinct().order_by(FinancialReportBrief.symbol.asc()).all()
+
 for report_brief in report_briefs:
     print(report_brief.symbol)
-    px_brief_list = []
     try:
         data = su.stock_individual_indicator(report_brief.symbol)
     except Exception as e:
         continue
+    px_brief_list = []
     for ignore, record in data.iterrows():
-        px_brief = StockPxBrief()
-        px_brief.symbol = report_brief.symbol
-        px_brief.name = report_brief.name
-        px_brief.trade_date = record["trade_date"]
-        px_brief.pe = cu.get_nonnan_value(record["pe"], 0.0)
-        px_brief.pe_ttm = cu.get_nonnan_value(record["pe_ttm"], 0.0)
-        px_brief.pb = cu.get_nonnan_value(record["pb"], 0.0)
-        px_brief.ps = cu.get_nonnan_value(record["ps"], 0.0)
-        px_brief.ps_ttm = cu.get_nonnan_value(record["ps_ttm"], 0.0)
-        px_brief.dv_ratio = cu.get_nonnan_value(record["dv_ratio"], 0.0)
-        px_brief.dv_ttm = cu.get_nonnan_value(record["dv_ttm"], 0.0)
-        px_brief.total_mv = cu.get_nonnan_value(record["total_mv"], 0.0)
-        px_brief.extra_info = "{}"
+        px_brief = {
+            'symbol': report_brief.symbol,
+            'name': report_brief.name,
+            'trade_date': record["trade_date"],
+            'pe': cu.get_nonnan_value(record["pe"], 0.0),
+            'pe_ttm': cu.get_nonnan_value(record["pe_ttm"], 0.0),
+            'pb': cu.get_nonnan_value(record["pb"], 0.0),
+            'ps': cu.get_nonnan_value(record["ps"], 0.0),
+            'ps_ttm': cu.get_nonnan_value(record["ps_ttm"], 0.0),
+            'dv_ratio': cu.get_nonnan_value(record["dv_ratio"], 0.0),
+            'dv_ttm': cu.get_nonnan_value(record["dv_ttm"], 0.0),
+            'total_mv': cu.get_nonnan_value(record["total_mv"], 0.0),
+            'extra_info': "{}"
+        }
         px_brief_list.append(px_brief)
     
-    try:
-        StockPxBrief.bulk_create(px_brief_list, 1000)
-    except Exception as e:
+    if len(px_brief_list) == 0:
         continue
+    
+    # 批量插入并在冲突时更新
+    update_fields = [
+        'name',
+        'trade_date',
+        'pe',
+        'pe_ttm',
+        'pb',
+        'ps',
+        'ps_ttm',
+        'dv_ratio',
+        'dv_ttm',
+        'total_mv',
+        'extra_info'
+    ]
+    StockPxBrief.batch_create(px_brief_list, update_fields)
     sleep(0.1)
