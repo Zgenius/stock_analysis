@@ -6,8 +6,7 @@ from time import sleep
 from manager.session_manager import SessionManager
 
 # 获取所有股票编码
-with SessionManager.get_session() as session:
-    report_briefs = session.query(FinancialReportBrief.symbol, FinancialReportBrief.name).distinct().order_by(FinancialReportBrief.symbol.asc()).all()
+report_briefs = SessionManager.query(FinancialReportBrief.symbol, FinancialReportBrief.name).distinct().order_by(FinancialReportBrief.symbol.asc()).all()
 
 for report_brief in report_briefs:
     print(report_brief.symbol)

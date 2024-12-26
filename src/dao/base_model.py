@@ -22,6 +22,11 @@ class BaseModel(Base):
             update_dict = { field: literal_column(f"VALUES({field})") for field in update_fields }
             stmt = stmt.on_duplicate_key_update(**update_dict)
         session.execute(stmt)
+    
+    @classmethod
+    @with_session
+    def select(cls, *fields, session = None):
+        return session.query(*fields)
 
     @classmethod
     @with_session
