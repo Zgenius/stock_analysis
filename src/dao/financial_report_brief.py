@@ -1,7 +1,7 @@
 from dao.BaseModel import BaseModel
 from peewee import CharField, DateTimeField, BigIntegerField, TextField, DoubleField
 
-class financial_report_brief(BaseModel):
+class FinancialReportBrief(BaseModel):
     id = BigIntegerField()
     symbol = CharField(max_length=12)
     name = CharField(max_length=12)

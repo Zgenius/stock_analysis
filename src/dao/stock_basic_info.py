@@ -1,7 +1,7 @@
 from dao.BaseModel import BaseModel
 from peewee import CharField, DateTimeField, BigIntegerField, TextField
 
-class stock_basic_info(BaseModel):
+class StockBasicInfo(BaseModel):
     id = BigIntegerField
     symbol = CharField(max_length=12)
     name = CharField(max_length=12)

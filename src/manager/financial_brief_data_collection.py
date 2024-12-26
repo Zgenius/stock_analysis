@@ -1,4 +1,4 @@
-from dao.stock_basic_info import stock_basic_info
+from dao.stock_basic_info import StockBasicInfo
 from datetime import datetime
 import utils.stock_utils as su
 import constant.fund_code_constant as fc
@@ -6,7 +6,7 @@ import constant.eastmoney_constant as const
 import utils.date_utils as du
 from time import sleep
 from datetime import datetime, timedelta
-from dao.financial_report_brief import financial_report_brief
+from dao.financial_report_brief import FinancialReportBrief
 import math
 
 now = datetime.now()
@@ -22,7 +22,7 @@ for date in annual_report_dates:
     brief_list = []
     for symbol, date2row in stock_code_2_date_2_base_info.items():
         for row in date2row.values():
-            brief = financial_report_brief()
+            brief = FinancialReportBrief()
             brief.symbol = symbol
             brief.name = row.get("股票简称")
             brief.report_time = datetime.strptime(date, "%Y%m%d")
@@ -36,4 +36,4 @@ for date in annual_report_dates:
             brief.extra_info = "{}"
             brief_list.append(brief)
     
-    financial_report_brief.bulk_create(brief_list)
+    FinancialReportBrief.bulk_create(brief_list)

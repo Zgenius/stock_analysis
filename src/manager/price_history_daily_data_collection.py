@@ -1,5 +1,5 @@
-from dao.financial_report_brief import financial_report_brief
-from dao.stock_price_history_daily import stock_price_history_daily
+from dao.financial_report_brief import FinancialReportBrief
+from dao.stock_price_history_daily import StockPriceHistoryDaily
 from datetime import datetime
 import utils.stock_utils as su
 import constant.fund_code_constant as fc
@@ -8,7 +8,7 @@ import utils.date_utils as du
 import utils.calculate_utils as cu
 from time import sleep
 from datetime import datetime, timedelta
-from dao.financial_report_brief import financial_report_brief
+from dao.financial_report_brief import FinancialReportBrief
 from utils.util import group_list_by_fixed_length
 import math
 
@@ -22,7 +22,7 @@ dayChunks = group_list_by_fixed_length(days, 1000)
 
 
 # 获取所有股票编码
-report_briefs = financial_report_brief.select(financial_report_brief.symbol, financial_report_brief.name).distinct().order_by(financial_report_brief.symbol.asc()).execute()
+report_briefs = FinancialReportBrief.select(FinancialReportBrief.symbol, FinancialReportBrief.name).distinct().order_by(FinancialReportBrief.symbol.asc()).execute()
 for report_brief in report_briefs:
     print(report_brief.symbol)
     for dayChunk in dayChunks:
@@ -37,7 +37,7 @@ for report_brief in report_briefs:
             continue
         stock_history_list = []
         for ignore, hisotry in history_daily.iterrows():
-            stock_history = stock_price_history_daily()
+            stock_history = StockPriceHistoryDaily()
             stock_history.symbol = report_brief.symbol
             stock_history.name = report_brief.name
             stock_history.trade_date = hisotry.get("日期")
@@ -54,5 +54,5 @@ for report_brief in report_briefs:
             stock_history.extra_info = "{}"
             stock_history_list.append(stock_history)
         
-        stock_price_history_daily.bulk_create(stock_history_list, 1000)
+        StockPriceHistoryDaily.bulk_create(stock_history_list, 1000)
         sleep(0.01)

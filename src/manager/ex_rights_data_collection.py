@@ -1,9 +1,9 @@
-from dao.financial_report_brief import financial_report_brief
-from dao.stock_ex_rights_info import stock_ex_rights_info
+from dao.financial_report_brief import FinancialReportBrief
+from dao.stock_ex_rights_info import StockExRightsInfo
 from datetime import datetime
 from time import sleep
 from datetime import datetime, timedelta
-from dao.financial_report_brief import financial_report_brief
+from dao.financial_report_brief import FinancialReportBrief
 from utils.util import group_list_by_fixed_length
 import utils.stock_utils as su
 import constant.fund_code_constant as fc
@@ -13,7 +13,7 @@ import utils.calculate_utils as cu
 import math
 
 
-report_briefs = financial_report_brief.select(financial_report_brief.symbol, financial_report_brief.name).distinct().order_by(financial_report_brief.symbol.asc()).execute()
+report_briefs = FinancialReportBrief.select(FinancialReportBrief.symbol, FinancialReportBrief.name).distinct().order_by(FinancialReportBrief.symbol.asc()).execute()
 for report_brief in report_briefs:
     print(report_brief.symbol)
 
@@ -24,7 +24,7 @@ for report_brief in report_briefs:
 
     stock_ex_rights_info_list = []
     for ignore, right in rights.iterrows():
-        rights_info = stock_ex_rights_info()
+        rights_info = StockExRightsInfo()
         rights_info.symbol = report_brief.symbol
         rights_info.name = report_brief.name
         rights_info.report_date = right["报告期"]
@@ -36,5 +36,5 @@ for report_brief in report_briefs:
 
         stock_ex_rights_info_list.append(rights_info)
     
-    stock_ex_rights_info.bulk_create(stock_ex_rights_info_list)
+    StockExRightsInfo.bulk_create(stock_ex_rights_info_list)
     sleep(1)

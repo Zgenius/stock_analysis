@@ -1,4 +1,4 @@
-from dao.stock_basic_info import stock_basic_info
+from dao.stock_basic_info import StockBasicInfo
 from datetime import datetime
 import utils.stock_utils as su
 import constant.fund_code_constant as fc
@@ -8,7 +8,7 @@ from time import sleep
 # 所有股票信息
 stocks = su.index_contain_stocks(fc.CODE_ZZ_500)
 
-exist_stock_basic_info_list = stock_basic_info.select(stock_basic_info.symbol)
+exist_stock_basic_info_list = StockBasicInfo.select(StockBasicInfo.symbol)
 exist_symbols = []
 for exist_stock_info in exist_stock_basic_info_list:
     exist_symbols.append(exist_stock_info.symbol)
@@ -20,7 +20,7 @@ for stock in stocks.values:
 
     stock_info = su.stock_individual_info(stock[4])
 
-    stock_record = stock_basic_info()
+    stock_record = StockBasicInfo()
     stock_record.symbol = stock[4]
     stock_record.name = stock[5]
     stock_record.sector = su.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_SECTOR)
@@ -30,4 +30,4 @@ for stock in stocks.values:
     stock_info_list.append(stock_record)
     sleep(0.01)
 
-stock_basic_info.bulk_create(stock_info_list)
+StockBasicInfo.bulk_create(stock_info_list)

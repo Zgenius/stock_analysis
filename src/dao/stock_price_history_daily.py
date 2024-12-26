@@ -1,7 +1,7 @@
 from dao.BaseModel import BaseModel
 from peewee import CharField, DateTimeField, BigIntegerField, TextField, DoubleField
 
-class stock_price_history_daily(BaseModel):
+class StockPriceHistoryDaily(BaseModel):
     id = BigIntegerField()
     symbol = CharField(max_length=12)
     name = CharField(max_length=12)
