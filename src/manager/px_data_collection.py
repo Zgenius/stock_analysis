@@ -3,10 +3,9 @@ from dao.financial_report_brief import FinancialReportBrief
 import utils.stock_utils as su
 import utils.calculate_utils as cu
 from time import sleep
-from manager.session_manager import SessionManager
 
 # 获取所有股票编码
-report_briefs = SessionManager.query(FinancialReportBrief.symbol, FinancialReportBrief.name).distinct().order_by(FinancialReportBrief.symbol.asc()).all()
+report_briefs = FinancialReportBrief.select(FinancialReportBrief.symbol, FinancialReportBrief.name).distinct().order_by(FinancialReportBrief.symbol.asc()).all()
 
 for report_brief in report_briefs:
     print(report_brief.symbol)
