@@ -9,6 +9,8 @@ stocks = su.index_contain_stocks(fc.CODE_ZZ_A500)
 
 stock_info_list = []
 for stock in stocks.values:
+    if stock[4] != '000001':
+        continue
     stock_info = su.stock_individual_info(stock[4])
 
     stock_record = {

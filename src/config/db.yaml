@@ -1,0 +1,6 @@
+stock_analysis:
+  host: 39.105.64.181
+  port: 8306
+  database: stock_analysis
+  user: cair
+  password: cair@aliyun

@@ -3,6 +3,7 @@ from sqlalchemy.dialects.mysql import insert
 from utils import util
 from sqlalchemy import literal_column
 from decorators.session_decorator import with_session
+from decorators.log_decorator import try_log
 
 Base = declarative_base()
 
@@ -16,6 +17,7 @@ class BaseModel(Base):
 
     @classmethod
     @with_session
+    @try_log
     def batch_create(cls, data, update_fields=None, session=None):
         stmt = insert(cls).values(data)
         if update_fields is not None:
