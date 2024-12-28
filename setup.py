@@ -17,8 +17,6 @@ setup(
         "contourpy>=1.3.0",
         "cycler>=0.12.1",
         "decorator>=5.1.1",
-        "Django>=4.2.17",
-        "django_db>=0.0.7",
         "et_xmlfile>=2.0.0",
         "fonttools>=4.55.1",
         "html5lib>=1.1",
