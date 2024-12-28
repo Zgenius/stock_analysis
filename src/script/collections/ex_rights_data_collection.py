@@ -8,11 +8,11 @@ from model.stock_ex_rights_info import StockExRightsInfo
 # 分红除权等信息的数据收集
 def ex_rights_data_collection():
     # 获取所有报告摘要
-    report_briefs = StockBasicInfo.select(StockBasicInfo.symbol, StockBasicInfo.name).distinct().order_by(StockBasicInfo.symbol.asc()).all()
+    stocks = StockBasicInfo.select(StockBasicInfo.symbol, StockBasicInfo.name).distinct().order_by(StockBasicInfo.symbol.asc()).all()
 
-    for report_brief in report_briefs:
+    for stock in stocks:
         try:
-            rights = su.stock_individual_ex_rights_detail(report_brief.symbol)
+            rights = su.stock_individual_ex_rights_detail(stock.symbol)
         except Exception as e:
             continue
 
@@ -23,8 +23,8 @@ def ex_rights_data_collection():
                 continue
 
             rights_info = {
-                'symbol': report_brief.symbol,
-                'name': report_brief.name,
+                'symbol': stock.symbol,
+                'name': stock.name,
                 'report_date': right["报告期"],
                 'ex_rights_date': right["除权除息日"],
                 'share_transfer_ratio': cu.get_nonnan_value(right["送转股份-送转总比例"], 0.0),
@@ -39,5 +39,7 @@ def ex_rights_data_collection():
         StockExRightsInfo.batch_create(stock_ex_rights_info_list, update_fields)
         sleep(1)
 
+
 if __name__ == "__main__":
     ex_rights_data_collection()
+print("ex_rights_data_collection.py done")

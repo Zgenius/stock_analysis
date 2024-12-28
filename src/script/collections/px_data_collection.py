@@ -3,21 +3,27 @@ from model.stock_basic_info import StockBasicInfo
 import utils.stock_utils as su
 import utils.calculate_utils as cu
 from time import sleep
+from datetime import datetime
 
 def px_data_collection():
+    now = datetime.now().date()
     # 获取所有股票编码
-    report_briefs = StockBasicInfo.select(StockBasicInfo.symbol, StockBasicInfo.name).distinct().order_by(StockBasicInfo.symbol.asc()).all()
+    stocks = StockBasicInfo.select(StockBasicInfo.symbol, StockBasicInfo.name).distinct().order_by(StockBasicInfo.symbol.asc()).all()
 
-    for report_brief in report_briefs:
+    for stock in stocks:
         try:
-            data = su.stock_individual_indicator(report_brief.symbol)
+            data = su.stock_individual_indicator(stock.symbol)
         except Exception as e:
             continue
         px_brief_list = []
         for ignore, record in data.iterrows():
+            # 交易日小于当前日期则跳过
+            if record["trade_date"] < now:
+                continue
+
             px_brief = {
-                'symbol': report_brief.symbol,
-                'name': report_brief.name,
+                'symbol': stock.symbol,
+                'name': stock.name,
                 'trade_date': record["trade_date"],
                 'pe': cu.get_nonnan_value(record["pe"], 0.0),
                 'pe_ttm': cu.get_nonnan_value(record["pe_ttm"], 0.0),
@@ -53,3 +59,4 @@ def px_data_collection():
 
 if __name__ == "__main__":
     px_data_collection()
+print("px_data_collection.py done")

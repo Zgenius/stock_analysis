@@ -42,3 +42,4 @@ def financial_brief_data_collection():
 
 if __name__ == "__main__":
     financial_brief_data_collection()
+print("financial_brief_data_collection.py done")

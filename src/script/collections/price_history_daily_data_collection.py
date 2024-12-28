@@ -1,29 +1,26 @@
 from model.stock_basic_info import StockBasicInfo
 from model.stock_price_history_daily import StockPriceHistoryDaily
-import utils.stock_utils as su
-import utils.date_utils as du
-import utils.calculate_utils as cu
 from time import sleep
 from datetime import datetime
-from manager.session_manager import SessionManager
 from utils.util import group_list_by_fixed_length
+import utils.stock_utils as su
+import utils.date_utils as du
 
 def price_history_daily_data_collection():
     # 时间范围
-    START_DATE = "19880101"
-    END_DATE = datetime.now().strftime("%Y%m%d")
+    START_DATE = END_DATE = datetime.now().strftime("%Y%m%d")
     days = du.get_between_days(START_DATE, END_DATE)
     days.sort()
     # 1000天一组
     dayChunks = group_list_by_fixed_length(days, 1000)
 
     # 获取所有股票编码
-    report_briefs = StockBasicInfo.select(StockBasicInfo.symbol, StockBasicInfo.name).distinct().order_by(StockBasicInfo.symbol.asc()).all()
+    stocks = StockBasicInfo.select(StockBasicInfo.symbol, StockBasicInfo.name).distinct().order_by(StockBasicInfo.symbol.asc()).all()
 
-    for report_brief in report_briefs:
+    for stock in stocks:
         for dayChunk in dayChunks:
             try:
-                history_daily = su.stock_daily_history(report_brief.symbol, dayChunk[0].strftime("%Y%m%d"), dayChunk[-1].strftime("%Y%m%d"))
+                history_daily = su.stock_daily_history(stock.symbol, dayChunk[0].strftime("%Y%m%d"), dayChunk[-1].strftime("%Y%m%d"))
             except Exception as e:
                 continue
             if history_daily is None or len(history_daily) == 0:
@@ -32,8 +29,8 @@ def price_history_daily_data_collection():
             stock_history_list = []
             for ignore, history in history_daily.iterrows():
                 stock_history = {
-                    'symbol': report_brief.symbol,
-                    'name': report_brief.name,
+                    'symbol': stock.symbol,
+                    'name': stock.name,
                     'trade_date': history.get("日期"),
                     'opening_price': history.get("开盘"),
                     'closing_price': history.get("收盘"),

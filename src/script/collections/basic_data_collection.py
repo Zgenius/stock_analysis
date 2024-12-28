@@ -30,3 +30,4 @@ def basic_data_collection(code = fc.CODE_ZZ_ALL):
 
 if __name__ == '__main__':
     basic_data_collection()
+print("basic_data_collection.py done")
