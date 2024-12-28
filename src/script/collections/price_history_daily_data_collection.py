@@ -1,4 +1,4 @@
-from model.financial_report_brief import FinancialReportBrief
+from model.stock_basic_info import StockBasicInfo
 from model.stock_price_history_daily import StockPriceHistoryDaily
 import utils.stock_utils as su
 import utils.date_utils as du
@@ -18,7 +18,7 @@ def price_history_daily_data_collection():
     dayChunks = group_list_by_fixed_length(days, 1000)
 
     # 获取所有股票编码
-    report_briefs = FinancialReportBrief.select(FinancialReportBrief.symbol, FinancialReportBrief.name).distinct().order_by(FinancialReportBrief.symbol.asc()).all()
+    report_briefs = StockBasicInfo.select(StockBasicInfo.symbol, StockBasicInfo.name).distinct().order_by(StockBasicInfo.symbol.asc()).all()
 
     for report_brief in report_briefs:
         print(report_brief.symbol)

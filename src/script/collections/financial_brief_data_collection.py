@@ -3,7 +3,6 @@ from time import sleep
 from datetime import datetime
 import utils.stock_utils as su
 import utils.date_utils as du
-import math
 import utils.calculate_utils as cu
 
 
@@ -39,6 +38,7 @@ def financial_brief_data_collection():
         # 批量插入数据
         update_fields = ["name", "operating_revenue", "net_profit", "net_asset_value_per_share", "earnings_per_share", "operating_cash_flow_per_share", "return_on_equity", "gross_profit_ratio", "extra_info"]
         FinancialReportBrief.batch_create(brief_list, update_fields)
+        sleep(0.01)
 
 if __name__ == "__main__":
     financial_brief_data_collection()
