@@ -21,7 +21,6 @@ def price_history_daily_data_collection():
     report_briefs = StockBasicInfo.select(StockBasicInfo.symbol, StockBasicInfo.name).distinct().order_by(StockBasicInfo.symbol.asc()).all()
 
     for report_brief in report_briefs:
-        print(report_brief.symbol)
         for dayChunk in dayChunks:
             try:
                 history_daily = su.stock_daily_history(report_brief.symbol, dayChunk[0].strftime("%Y%m%d"), dayChunk[-1].strftime("%Y%m%d"))

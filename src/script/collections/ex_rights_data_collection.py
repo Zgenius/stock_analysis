@@ -1,16 +1,16 @@
 import utils.stock_utils as su
 import utils.calculate_utils as cu
+import pandas as pd
 from time import sleep
 from model.stock_basic_info import StockBasicInfo
 from model.stock_ex_rights_info import StockExRightsInfo
 
+# 分红除权等信息的数据收集
 def ex_rights_data_collection():
     # 获取所有报告摘要
     report_briefs = StockBasicInfo.select(StockBasicInfo.symbol, StockBasicInfo.name).distinct().order_by(StockBasicInfo.symbol.asc()).all()
 
     for report_brief in report_briefs:
-        print(report_brief.symbol)
-
         try:
             rights = su.stock_individual_ex_rights_detail(report_brief.symbol)
         except Exception as e:
@@ -18,6 +18,10 @@ def ex_rights_data_collection():
 
         stock_ex_rights_info_list = []
         for ignore, right in rights.iterrows():
+            # 除权除息日为空则跳过
+            if pd.isna(right["除权除息日"]):
+                continue
+
             rights_info = {
                 'symbol': report_brief.symbol,
                 'name': report_brief.name,

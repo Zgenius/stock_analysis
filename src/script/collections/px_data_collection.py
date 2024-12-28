@@ -9,7 +9,6 @@ def px_data_collection():
     report_briefs = StockBasicInfo.select(StockBasicInfo.symbol, StockBasicInfo.name).distinct().order_by(StockBasicInfo.symbol.asc()).all()
 
     for report_brief in report_briefs:
-        print(report_brief.symbol)
         try:
             data = su.stock_individual_indicator(report_brief.symbol)
         except Exception as e:
