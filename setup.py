@@ -1,4 +1,15 @@
 from setuptools import setup, find_packages
+import os
+
+def package_files(directory):
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            if filename.endswith('.yaml'):
+                paths.append(os.path.join(path, filename))
+    return paths
+
+extra_files = package_files('src/config')
 
 # 可编辑模块
 setup(
@@ -6,6 +17,10 @@ setup(
     version="0.1",
     packages=find_packages(where = "src"),
     package_dir={"": "src"},
+    package_data={
+        '': extra_files,
+    },
+    include_package_data=True,
     install_requires=[
         # 在这里列出项目的依赖包及其版本要求
         "akshare>=1.15.32",
@@ -26,7 +41,7 @@ setup(
         "kiwisolver>=1.4.7",
         "lxml>=5.3.0",
         "matplotlib>=3.9.3",
-        "mini-racer>=0.12.4",
+        # "mini-racer>=0.12.4",
         "numpy>=2.0.2",
         "openpyxl>=3.1.5",
         "packaging>=24.2",
