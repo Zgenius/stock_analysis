@@ -5,5 +5,9 @@ import constant.eastmoney_constant as const
 import constant.fund_code_constant as fc
 
 # 获取所有股票信息
-stocks = su.index_contain_stocks(fc.CODE_ZZ_ALL)
-print(stocks)
+# stocks = su.index_contain_stocks(fc.CODE_ZZ_ALL)
+# print(stocks)
+
+
+date = "20240101"
+print(f"data_{date}.json")

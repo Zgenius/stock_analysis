@@ -1,6 +1,6 @@
 import utils.stock_utils as su
 import constant.eastmoney_constant as const
-import strategy.mean_reversion_strategy_base_residuals as mr
+from manager.mean_reversion_strategy_base_residuals import mean_reversion
 
 # 股票编码A
 STOCK_CODE_A = "600036"
@@ -22,4 +22,4 @@ stock_merge_list = su.sync_data_list(stock_daily_history_a, stock_daily_history_
 stock_daily_history_a = stock_merge_list[0]
 stock_daily_history_b = stock_merge_list[1]
 
-mr.mean_reversion(stock_daily_history_a[const.CLOSE_PRICE_KEY], stock_daily_history_b[const.CLOSE_PRICE_KEY])
+mean_reversion(stock_daily_history_a[const.CLOSE_PRICE_KEY], stock_daily_history_b[const.CLOSE_PRICE_KEY])

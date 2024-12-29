@@ -27,6 +27,7 @@ class BaseModel(Base):
     
     @classmethod
     @with_session
+    @try_log
     def select(cls, *fields, session = None):
         return session.query(*fields)
 

@@ -19,8 +19,11 @@ class stock_holding(stock):
     holding_dividend = 0.0
 
     # 获取持仓市值
-    def getMarketValue(self):
-        return self.holding_num * self.getPrice()
+    def getMarketValue(self, price = None):
+        if price == None:
+            price = self.getPrice()
+
+        return self.holding_num * price
         
     # 输出格式化字符串
     def __str__(self) -> str:

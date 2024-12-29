@@ -3,58 +3,12 @@ import constant.constant as constant
 from statsmodels.tsa.stattools import adfuller
 import utils.stock_utils as su
 import constant.eastmoney_constant as const
-import strategy.mean_reversion_strategy_base_residuals as mr
 import time
 
 FAILED = -1
 SELL = 2
 BUY = 1
 HOLDING = 0
-
-def index_fund_mean_reversion(symbol_code, start_date, end_date):
-    # 获取给定基金的成分信息
-    stocks = su.index_contain_stocks(symbol_code);
-
-    # 构造代码到信息的映射表
-    stock_code_2_info = {}
-    for index, row in stocks.iterrows():
-        stock_code_2_info[row["成分券代码"]] = row
-
-    # 获取股票编码
-    stock_codes = list(stock_code_2_info.keys())
-    stock_code_length = len(stock_codes)
-
-    for i in range(0, stock_code_length - 1):
-        for j in range(i + 1, stock_code_length):
-            stock_code_a = stock_codes[i]
-            stock_code_b = stock_codes[j]
-
-            # 获取基础信息
-            stock_daily_history_a = su.stock_daily_history(stock_code_a, start_date, end_date)
-            stock_daily_history_b = su.stock_daily_history(stock_code_b, start_date, end_date)
-            if len(stock_daily_history_a) <= constant.MIN_EXCHANGE_DAY_NUM or len(stock_daily_history_b) <= constant.MIN_EXCHANGE_DAY_NUM:
-                continue
-
-            stock_merge_list = su.sync_data_list(stock_daily_history_a, stock_daily_history_b)
-            stock_daily_history_a = stock_merge_list[0]
-            stock_daily_history_b = stock_merge_list[1]
-
-            # 元素数量
-            length = len(stock_daily_history_a);
-            # 没有数据，或者上市日期小于constant.MIN_EXCHANGE_DAY_NUM个交易日的就不计算了
-            if length == 0 or length < constant.MIN_EXCHANGE_DAY_NUM:
-                continue
-
-            mean_reversion_code = mr.mean_reversion(stock_daily_history_a[const.CLOSE_PRICE_KEY], stock_daily_history_b[const.CLOSE_PRICE_KEY])
-            if mean_reversion_code == -1:
-                continue
-
-            print(mean_reversion_code)
-            print(stock_code_a, stock_code_2_info[stock_code_a]["成分券名称"], stock_code_b, stock_code_2_info[stock_code_b]["成分券名称"])
-
-            # 睡眠100毫秒，防止请求过于频繁
-            time.sleep(0.1)
-
 
 # 基于残差的均值回归策略
 def mean_reversion(stock1, stock2):
@@ -129,3 +83,47 @@ def cointegrate(stock1, stock2):
         # print("两只股票不具有协整关系。")
 
     return res
+
+def index_fund_mean_reversion(symbol_code, start_date, end_date):
+    # 获取给定基金的成分信息
+    stocks = su.index_contain_stocks(symbol_code);
+
+    # 构造代码到信息的映射表
+    stock_code_2_info = {}
+    for index, row in stocks.iterrows():
+        stock_code_2_info[row["成分券代码"]] = row
+
+    # 获取股票编码
+    stock_codes = list(stock_code_2_info.keys())
+    stock_code_length = len(stock_codes)
+
+    for i in range(0, stock_code_length - 1):
+        for j in range(i + 1, stock_code_length):
+            stock_code_a = stock_codes[i]
+            stock_code_b = stock_codes[j]
+
+            # 获取基础信息
+            stock_daily_history_a = su.stock_daily_history(stock_code_a, start_date, end_date)
+            stock_daily_history_b = su.stock_daily_history(stock_code_b, start_date, end_date)
+            if len(stock_daily_history_a) <= constant.MIN_EXCHANGE_DAY_NUM or len(stock_daily_history_b) <= constant.MIN_EXCHANGE_DAY_NUM:
+                continue
+
+            stock_merge_list = su.sync_data_list(stock_daily_history_a, stock_daily_history_b)
+            stock_daily_history_a = stock_merge_list[0]
+            stock_daily_history_b = stock_merge_list[1]
+
+            # 元素数量
+            length = len(stock_daily_history_a)
+            # 没有数据，或者上市日期小于constant.MIN_EXCHANGE_DAY_NUM个交易日的就不计算了
+            if length == 0 or length < constant.MIN_EXCHANGE_DAY_NUM:
+                continue
+
+            mean_reversion_code = mean_reversion(stock_daily_history_a[const.CLOSE_PRICE_KEY], stock_daily_history_b[const.CLOSE_PRICE_KEY])
+            if mean_reversion_code == -1:
+                continue
+
+            print(mean_reversion_code)
+            print(stock_code_a, stock_code_2_info[stock_code_a]["成分券名称"], stock_code_b, stock_code_2_info[stock_code_b]["成分券名称"])
+
+            # 睡眠100毫秒，防止请求过于频繁
+            time.sleep(0.1)

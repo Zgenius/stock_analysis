@@ -2,7 +2,10 @@ import constant.eastmoney_constant as const
 from model.transacation_cost import transacation_cost
 from model.stock_holding import stock_holding
 from context.market_context import market_context
+from model.stock_price_history_daily import StockPriceHistoryDaily
 from datetime import datetime
+from sqlalchemy import and_
+import logging
 
 class account:
     # 最小单位
@@ -98,15 +101,25 @@ class account:
         return True
     
     # 获取总资产
-    def get_total_asset(self):
-        return self.get_market_value() + self.availible_cash
-
+    def get_total_asset(self, date = None):
+        return self.get_market_value(date) + self.availible_cash
+    
     # 获取总市值
-    def get_market_value(self):
+    def get_market_value(self, date = None):
+        symbols = self.holding_stocks.keys()
+        symbol_2_price = {}
+        if date != None and len(symbols) != 0:
+            price_history = StockPriceHistoryDaily.select(StockPriceHistoryDaily).where(and_(StockPriceHistoryDaily.symbol.in_(symbols), StockPriceHistoryDaily.trade_date == date)).order_by(StockPriceHistoryDaily.trade_date.desc()).all()
+            for price_info in price_history:
+                symbol_2_price[price_info.symbol] = price_info.closing_price
+
         market_value = 0.0
         for index in self.holding_stocks:
             stock = self.holding_stocks[index]
-            market_value += stock.getMarketValue()
+            price = None
+            if index in symbol_2_price:
+                price = symbol_2_price[index]
+            market_value += stock.getMarketValue(price)
 
         return market_value
 

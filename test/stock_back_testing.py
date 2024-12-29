@@ -1,6 +1,6 @@
 import utils.stock_utils as su
 import constant.eastmoney_constant as const
-import strategy.mean_reversion_strategy_base_residuals as mr
+from manager.mean_reversion_strategy_base_residuals import *
 import utils.util as util
 from datetime import datetime
 from model.account import account
@@ -53,11 +53,11 @@ class stock_back_testing:
             price_1 = stock_daily_history_1.at[i, const.CLOSE_PRICE_KEY]
 
             # 基于残差的均值回归策略判断
-            result = mr.mean_reversion(stock_daily_history_0[const.CLOSE_PRICE_KEY].iloc[0:i], stock_daily_history_1[const.CLOSE_PRICE_KEY].iloc[0:i])
-            if result != mr.BUY and result != mr.SELL:
+            result = mean_reversion(stock_daily_history_0[const.CLOSE_PRICE_KEY].iloc[0:i], stock_daily_history_1[const.CLOSE_PRICE_KEY].iloc[0:i])
+            if result != BUY and result != SELL:
                 continue
 
-            if result == mr.BUY and count_timer.getCount() % self.EXCHANGE_INTERVAL == 0:
+            if result == BUY and count_timer.getCount() % self.EXCHANGE_INTERVAL == 0:
                 # 存在持仓股票，先卖出
                 user_account.sell(argv[0], price_0, self.EXCHANGE_NUM)
                 # 确定买入数量
@@ -69,7 +69,7 @@ class stock_back_testing:
                 if buy_result:
                     print("日期：", date)
 
-            elif result == mr.SELL and count_timer.getCount() % self.EXCHANGE_INTERVAL == 0:
+            elif result == SELL and count_timer.getCount() % self.EXCHANGE_INTERVAL == 0:
                 # 存在持仓股票，先卖出
                 user_account.sell(argv[1], price_1, self.EXCHANGE_NUM)
                 # 确定买入数量
