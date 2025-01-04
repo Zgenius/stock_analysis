@@ -9,5 +9,5 @@ import constant.fund_code_constant as fc
 # print(stocks)
 
 
-date = "20240101"
-print(f"data_{date}.json")
+import akshare as ak
+print(ak.__version__)

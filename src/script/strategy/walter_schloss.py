@@ -1,240 +1,144 @@
-from model.stock_basic_info import StockBasicInfo
-from model.stock_px_brief import StockPxBrief
-from model.stock_price_history_daily import StockPriceHistoryDaily
-from model.account import account
-from utils.util import group_list_by_fixed_length
-from datetime import datetime
-from sqlalchemy import and_
-from datetime import datetime, timedelta
-import utils.util as util
-import utils.date_utils as du
-import math
-import json
-import os
+import akshare as ak
+import pandas as pd
+import numpy as np
+import datetime
 
-'''
-沃尔特施洛斯的烟蒂股策略数字化
-不深研, 全凭统计学
-买入策略
-    1.低pe: 低于15
-    2.低pb: 低于0.67
-    3.低price: 3年股价最低位置附近, 理论上不超过最低点20%
-    4.低负债: 负债率50%就不要碰了
-持仓策略
-    1.分散持仓, 个股仓位不超过5%
-    2.每天计算是否涨幅超过50%
-    3.每天计算所有买入超过1年的股票是否满足标准, 不满足就换称符合标准的
-卖出策略
-    1.涨幅超过50%, 卖出50%仓位
-'''
+# 获取股票列表
+def get_stock_list():
+    df = ak.stock_info_a_code_name()
+    return df['code'].tolist()
 
-class walterSchloss:
-    # 时间范围
-    START_DATE = "20140101"
-    END_DATE = datetime.now().strftime("%Y%m%d")
+# 获取股票历史数据
+def get_stock_data(stock_code, start_date, end_date):
+    df = ak.stock_zh_a_hist(symbol=stock_code, period="daily", start_date=start_date, end_date=end_date, adjust="qfq")
+    return df
 
-    user_account = account(1000000)
-
-    def run(self):
-        days = du.get_between_days(self.START_DATE, self.END_DATE)
-        config_path = f"data/data_{self.END_DATE}.json"
-        if os.path.exists(config_path):
-            with open(config_path, 'r') as f:
-                date2_symbols = json.load(f)
-        
-            date_2_satisfied_symbols = {}
-            for date, symbols in date2_symbols.items():
-                date_2_satisfied_symbols[datetime.strptime(date, "%Y%m%d")] = symbols
+# 获取财务数据（负债率）
+def get_financial_data(stock_code):
+    try:
+        # 获取资产负债表
+        df = ak.stock_financial_report_sina(stock=stock_code, symbol="资产负债表")
+        if not df.empty:
+            # 检查返回的数据结构
+            print(f"股票 {stock_code} 的财务数据列名: {df.columns}")
+            # 假设负债合计和资产总计的列名分别为 '负债合计' 和 '资产总计'
+            if '负债合计' in df.columns and '资产总计' in df.columns:
+                total_liab = df[df['项目'] == '负债合计'].iloc[0]['最新值']
+                total_assets = df[df['项目'] == '资产总计'].iloc[0]['最新值']
+                debt_ratio = total_liab / total_assets
+                return debt_ratio
+            else:
+                print(f"股票 {stock_code} 的财务数据缺少必要列")
         else:
-            date_2_satisfied_symbols = self.choice(days)
-            with open(config_path, 'w') as f:
-                json.dump(date_2_satisfied_symbols, f)
+            print(f"股票 {stock_code} 的财务数据为空")
+    except Exception as e:
+        print(f"获取股票 {stock_code} 的财务数据失败: {e}")
+    return None
 
-        # config_path = 'data/data.json'
-        # with open(config_path, 'r') as f:
-        #     date2_symbols = json.load(f)
-        
-        # date_2_satisfied_symbols = {}
-        # for date, symbols in date2_symbols.items():
-        #     date_2_satisfied_symbols[datetime.strptime(date, "%Y%m%d")] = symbols
-
-        for day in days:
-            if day not in date_2_satisfied_symbols:
-                continue
-
-            satisfied_symbols = date_2_satisfied_symbols[day]
-            # 获取最新交易日
-            self.trade_date = day
-            symbol_length = len(satisfied_symbols)
-            if len(satisfied_symbols) == 0:
-                continue
-
-            self.buy(satisfied_symbols)
-            self.sell(satisfied_symbols)
-
-        print(self.user_account)
-        return
+# 筛选烟蒂股
+def filter_cigar_butt_stocks(stock_list, date):
+    cigar_butt_stocks = []
     
-    def buy(self, symbols):
-        if symbols == None or len(symbols) == 0:
-            return
+    for stock_code in stock_list:
+        # 获取历史数据
+        start_date = (datetime.datetime.strptime(date, '%Y%m%d') - datetime.timedelta(days=3*365)).strftime('%Y%m%d')
+        df = get_stock_data(stock_code, start_date, date)
         
-        user_account = self.user_account
-        price_history = StockPriceHistoryDaily.select(StockPriceHistoryDaily).where(and_(StockPriceHistoryDaily.symbol.in_(symbols), StockPriceHistoryDaily.trade_date == self.trade_date)).order_by(StockPriceHistoryDaily.trade_date.desc()).all()
-        if len(price_history) == 0:
-            return
+        if df.empty:
+            continue
         
-        symbol_2_price_info = {}
-        for price_info in price_history:
-            symbol_2_price_info[price_info.symbol] = price_info
+        # 计算最低价
+        min_price = df['最低'].min()
+        current_price = df.iloc[-1]['收盘']
         
-        symbol_length = len(symbols)
-        total_asset = user_account.get_total_asset(self.trade_date)
-        # 单只上限是5%
-        single_stock_limit = math.floor(total_asset / min(symbol_length, 20))
-        for symbol in symbols:
-            if symbol not in symbol_2_price_info:
-                continue
-
-            price = symbol_2_price_info[symbol].closing_price
-            number = util.can_buy_num(single_stock_limit, price)
-            self.user_account.buy(symbol, price, number, self.trade_date)
-
+        # 获取财务数据
+        debt_ratio = get_financial_data(stock_code)
+        if debt_ratio is None:
+            continue
+        
+        # 获取PE和PB
+        stock_pe_pb = ak.stock_a_lg_indicator(stock_code)
+        if stock_pe_pb.empty:
+            continue
+        pe = stock_pe_pb.iloc[0]['市盈率']
+        pb = stock_pe_pb.iloc[0]['市净率']
+        
+        # 筛选条件
+        if (pe < 15) and (pb < 0.67) and (current_price <= min_price * 1.2) and (debt_ratio < 0.5):
+            cigar_butt_stocks.append(stock_code)
     
-    def sell(self, symbols):
-        if len(self.user_account.holding_stocks) == 0:
-            return
-        
-        hold_symbols = self.user_account.holding_stocks.keys()
-        price_history = StockPriceHistoryDaily.select(StockPriceHistoryDaily).where(and_(StockPriceHistoryDaily.symbol.in_(hold_symbols), StockPriceHistoryDaily.trade_date == self.trade_date)).order_by(StockPriceHistoryDaily.trade_date.desc()).all()
+    return cigar_butt_stocks
 
-        symbol_2_price_info = {}
-        for price_info in price_history:
-            symbol_2_price_info[price_info.symbol] = price_info
-
-        holding_stocks = self.user_account.holding_stocks.copy()
-        for symbol, stock in holding_stocks.items():
-            if symbol not in symbol_2_price_info:
-                continue
-
-            price = symbol_2_price_info[symbol].closing_price
-            if price / stock.buy_price <= 1.5 or symbol not in symbols:
-                continue
-
-            self.user_account.sell(symbol, price, stock.holding_num)
+# 烟蒂股策略
+def cigar_butt_strategy(stock_list, start_date, end_date):
+    portfolio = {}  # 持仓
+    portfolio_returns = []  # 每日收益率
     
-    def choice(self, dates):
-        satisfied_symbols = []
-        # 获取所有报告摘要
-        stocks = StockBasicInfo.select(StockBasicInfo.symbol, StockBasicInfo.name).distinct().order_by(StockBasicInfo.symbol.asc()).all()
-        # 将stocks列表按照每组100个进行分组
-        date_chunks = group_list_by_fixed_length(dates, 100)
-        date_2_satisfied_symbols = {}
-        for date_chunk in date_chunks:
-            satisfied_symbol_chunk = self.choice_chunk(stocks, date_chunk)
-            date_2_satisfied_symbols.update(satisfied_symbol_chunk)
+    for date in pd.date_range(start_date, end_date):
+        date_str = date.strftime('%Y%m%d')
         
-        return date_2_satisfied_symbols
-
-    def filter_pe_and_pb(self, symbols, dates) -> dict:
-        if symbols == None or len(symbols) == 0:
-            return {}
+        # 筛选烟蒂股
+        cigar_butt_stocks = filter_cigar_butt_stocks(stock_list, date_str)
         
-        where = and_(
-            StockPxBrief.symbol.in_(symbols), 
-            StockPxBrief.trade_date.in_(dates),
-            StockPxBrief.pe_ttm > 0.0,
-            StockPxBrief.pe_ttm <= 15,
-            StockPxBrief.pb < 1
-        )
+        # 买入新股票
+        for stock_code in cigar_butt_stocks:
+            if stock_code not in portfolio:
+                df = get_stock_data(stock_code, date_str, date_str)
+                if not df.empty:
+                    portfolio[stock_code] = {'buy_price': df.iloc[0]['收盘'], 'buy_date': date}
         
-        # 查询满足pe_ttm<=15 and pb < 1的股票
-        px_briefs = StockPxBrief.select(StockPxBrief.symbol, StockPxBrief.trade_date).where(where).all()
-        if px_briefs is None or len(px_briefs) == 0:
-            return {}
-        
-        date_2_symbols = {}
-        for px_brief in px_briefs:
-            if px_brief.trade_date not in date_2_symbols:
-                date_2_symbols[px_brief.trade_date] = []
+        # 卖出逻辑
+        for stock_code in list(portfolio.keys()):
+            df = get_stock_data(stock_code, date_str, date_str)
+            if df.empty:
+                continue
+            current_price = df.iloc[0]['收盘']
+            buy_price = portfolio[stock_code]['buy_price']
+            buy_date = portfolio[stock_code]['buy_date']
             
-            date_2_symbols[px_brief.trade_date].append(px_brief.symbol)
-
-        return date_2_symbols
-
-    def filter_price(self, date_2_symbols, dates) -> dict:
-        if date_2_symbols == None or len(date_2_symbols) == 0 or dates == None:
-            return []
-
-        symbols = []
-        for symbol_chunk in date_2_symbols.values():
-            symbols.extend(symbol_chunk)
-            symbols = list(set(symbols))
-
-
-        min_date = min(dates)
-        max_date = max(dates)
-        year3ago = min_date - timedelta(days = 365 * 3)
-
-        date_2_satisfied_symbols = {}
-        symbol_chunks = group_list_by_fixed_length(symbols, 5)
-        for symbol_chunk in symbol_chunks:
-            where = and_(
-                StockPriceHistoryDaily.symbol.in_(symbol_chunk), 
-                StockPriceHistoryDaily.trade_date.between(year3ago, max_date)
-            )
-
-            price_history = StockPriceHistoryDaily.select(StockPriceHistoryDaily).where(where).order_by(StockPriceHistoryDaily.trade_date.desc()).all()
-            if price_history == None or len(price_history) == 0:
+            # 涨幅超过50%，卖出50%
+            if current_price / buy_price > 1.5:
+                del portfolio[stock_code]
+            
+            # 持仓超过1年且不符合条件，卖出
+            if (date - buy_date).days > 365 and stock_code not in cigar_butt_stocks:
+                del portfolio[stock_code]
+        
+        # 计算当日收益率
+        daily_return = 0
+        for stock_code in portfolio:
+            df = get_stock_data(stock_code, date_str, date_str)
+            if df.empty:
                 continue
-
-            symbol_2_date_2_price_info = {}
-            for price_info in price_history:
-                if price_info.symbol not in symbol_2_date_2_price_info:
-                    symbol_2_date_2_price_info[price_info.symbol] = {}
-                
-                symbol_2_date_2_price_info[price_info.symbol][price_info.trade_date] = price_info
-        
-            for date in dates:
-                start_date = date - timedelta(days = 365 * 3)
-                for symbol, date_2_price_info in symbol_2_date_2_price_info.items():
-                    if date not in date_2_price_info:
-                        continue
-
-                    # 当天的价格信息
-                    price_info = date_2_price_info[date]
-                    price_info_list = []
-                    for trade_date, price_item in date_2_price_info.items():
-                        if trade_date < start_date or trade_date > date:
-                            continue
-                        price_info_list.append(price_item)
-                    
-                    price_list = [price.closing_price for price in price_info_list]
-                    low_price = min(price_list)
-                    # 最近3年内，从最低价格上涨超过20%的过滤掉
-                    if price_info.closing_price / low_price > 1.2:
-                        continue
-
-                    if date not in date_2_satisfied_symbols:
-                        date_2_satisfied_symbols[date] = []
-                    
-                    date_2_satisfied_symbols[date].append(symbol)
-
-        return date_2_satisfied_symbols
-
+            current_price = df.iloc[0]['收盘']
+            buy_price = portfolio[stock_code]['buy_price']
+            daily_return += (current_price - buy_price) / buy_price * 0.05  # 单只股票仓位5%
+        portfolio_returns.append(daily_return)
     
-    def choice_chunk(self, stocks, dates) -> dict:
-        if stocks is None or len(stocks) == 0 or dates is None:
-            return []
-        
-        # 获取所有股票代码
-        symbols = [stock.symbol for stock in stocks]
-        date_2_symbols = self.filter_pe_and_pb(symbols, dates)
-        date_2_symbols = self.filter_price(date_2_symbols, dates)
+    # 计算累计收益率
+    cumulative_returns = (1 + pd.Series(portfolio_returns)).cumprod()
+    
+    return cumulative_returns
 
-        return date_2_symbols
-
-
+# 主程序
 if __name__ == "__main__":
-    walterSchloss().run()
-    print("walter_schloss.py done")
+    # 参数设置
+    stock_list = get_stock_list()
+    start_date = '20200101'
+    end_date = '20231231'
+    
+    # 运行策略
+    cumulative_returns = cigar_butt_strategy(stock_list, start_date, end_date)
+    
+    # 输出结果
+    print("累计收益率:\n", cumulative_returns)
+    
+    # 绘制收益率曲线
+    import matplotlib.pyplot as plt
+    plt.figure(figsize=(12, 6))
+    plt.plot(cumulative_returns, label='烟蒂股策略')
+    plt.title('烟蒂股策略累计收益率')
+    plt.xlabel('时间')
+    plt.ylabel('收益率')
+    plt.legend()
+    plt.show()

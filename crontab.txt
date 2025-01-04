@@ -1,11 +1,15 @@
-# 用来配置执行crontab的执行任务
+# 设置环境变量
+SHELL=/bin/bash
+# PATH=/usr/local/bin:/usr/bin:/bin
+STOCK_ANALYSIS_DIR=xxx
+
 # 中证全指每年6，12月的第三个星期1执行，所以我这个星期2执行
-0 20 * 6,12 2 /home/cair/learn/2024/stock_analysis/.venv/bin/python3 /home/cair/learn/2024/stock_analysis/src/script/collections/basic_data_collection.py
+0 20 * 6,12 2 cd $STOCK_ANALYSIS_DIR && .venv/bin/python3 src/script/collections/basic_data_collection.py
 # 每个财报截止日期之后月份的第一天，获取分红除权信息
-0 20 1 5,9,11 * /home/cair/learn/2024/stock_analysis/.venv/bin/python3 /home/cair/learn/2024/stock_analysis/src/script/collections/ex_rights_data_collection.py
+0 20 1 5,9,11 * cd $STOCK_ANALYSIS_DIR && .venv/bin/python3 src/script/collections/ex_rights_data_collection.py
 # 获取财报简报
-0 20 1 5,9,11 * /home/cair/learn/2024/stock_analysis/.venv/bin/python3 /home/cair/learn/2024/stock_analysis/src/script/collections/financial_brief_data_collection.py
+0 20 1 5,9,11 * cd $STOCK_ANALYSIS_DIR && .venv/bin/python3 src/script/collections/financial_brief_data_collection.py
 # 每周一到周五20点获取当天的价格数据
-0 20 * * 1-5 /home/cair/learn/2024/stock_analysis/.venv/bin/python3 /home/cair/learn/2024/stock_analysis/src/script/collections/price_history_daily_data_collection.py
+0 20 * * 1-5 cd $STOCK_ANALYSIS_DIR && .venv/bin/python3 src/script/collections/price_history_daily_data_collection.py
 # 每周一到周五20点获取当天估值数据
-0 20 * * 1-5 /home/cair/learn/2024/stock_analysis/.venv/bin/python3 /home/cair/learn/2024/stock_analysis/src/script/collections/px_data_collection.py
+0 20 * * 1-5 cd $STOCK_ANALYSIS_DIR && .venv/bin/python3 src/script/collections/px_data_collection.py
