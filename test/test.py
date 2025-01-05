@@ -1,13 +1,13 @@
-from model.stock_basic_info import StockBasicInfo
-from time import sleep
-import utils.stock_utils as su
-import constant.eastmoney_constant as const
-import constant.fund_code_constant as fc
+import json
+import math
+from utils.dict_utils import parse_nan
 
-# 获取所有股票信息
-# stocks = su.index_contain_stocks(fc.CODE_ZZ_ALL)
-# print(stocks)
+# 示例字典，包含 NaN 和 Inf
+data = {
+    "value1": 123.45,
+    "value2": float('nan'),  # NaN值
+    "value3": 678.90,
+    "value4": float('inf')   # Inf值
+}
 
-
-import akshare as ak
-print(ak.__version__)
+print(parse_nan(data))

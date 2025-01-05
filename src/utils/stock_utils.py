@@ -162,3 +162,9 @@ def stock_2_date_2_cash_flow_info(stock_codes):
             }
 
     return stock_2_date_2_info
+
+# 资产负债表
+def stock_statement_of_financial_position(symbol):
+    # 转换成到交易所的编码
+    code = convert_stock_code(symbol)
+    return ak.stock_balance_sheet_by_report_em(code)

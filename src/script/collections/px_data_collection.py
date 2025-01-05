@@ -55,7 +55,7 @@ def px_data_collection():
             'extra_info'
         ]
         StockPxBrief.batch_create(px_brief_list, update_fields)
-        sleep(0.1)
+        sleep(1)
 
 if __name__ == "__main__":
     px_data_collection()
