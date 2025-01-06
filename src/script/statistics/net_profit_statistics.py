@@ -1,11 +1,10 @@
-import matplotlib.pyplot as plt
-import matplotlib
 from sqlalchemy import and_
 from model.financial_report_brief import FinancialReportBrief
-from matplotlib.ticker import ScalarFormatter
 from datetime import datetime, timedelta
 from manager.plot_manager import PlotManager
+from model.stock_basic_info import StockBasicInfo
 
+#最近15年的营业收入和净利润
 class netProftStatistics:
     def __init__(self):
         pass
@@ -13,6 +12,8 @@ class netProftStatistics:
     def show(self, symbol):
         end_date = datetime.now()
         start_date = end_date - timedelta(days = 365 * 15)
+
+        stock = StockBasicInfo.select(StockBasicInfo.symbol, StockBasicInfo.name).where(StockBasicInfo.symbol == symbol).distinct().order_by(StockBasicInfo.symbol.asc()).one()
         # print(matplotlib.get_configdir())
         where = and_(FinancialReportBrief.symbol == symbol, FinancialReportBrief.report_time.like("%12-31%"), FinancialReportBrief.report_time >= start_date)
         briefs = FinancialReportBrief.select(FinancialReportBrief.report_time, FinancialReportBrief.net_profit, FinancialReportBrief.operating_revenue).where(where).order_by(FinancialReportBrief.report_time).all()
@@ -24,7 +25,7 @@ class netProftStatistics:
         operating_revenues = [round(brief.operating_revenue / 100000000, 2) for brief in briefs]
 
         plot_dict = {
-            'title': '净利润走势',
+            'title': stock.name + '-净利润走势',
             'xlabel': '年份',
             'ylabel': '净利润(亿)',
             'x_values': report_times,

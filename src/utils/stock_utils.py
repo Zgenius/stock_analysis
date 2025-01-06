@@ -168,3 +168,15 @@ def stock_statement_of_financial_position(symbol):
     # 转换成到交易所的编码
     code = convert_stock_code(symbol)
     return ak.stock_balance_sheet_by_report_em(code)
+
+# 利润表
+def stock_statement_of_earnings(symbol):
+    # 转换成到交易所的编码
+    code = convert_stock_code(symbol)
+    return ak.stock_profit_sheet_by_report_em(code)
+
+# 现金流表
+def stock_statement_of_cash_flows(symbol):
+    # 转换成到交易所的编码
+    code = convert_stock_code(symbol)
+    return ak.stock_cash_flow_sheet_by_report_em(code)

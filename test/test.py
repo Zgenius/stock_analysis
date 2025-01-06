@@ -1,13 +1,13 @@
-import json
-import math
-from utils.dict_utils import parse_nan
+from manager.plot_manager import PlotManager
 
-# 示例字典，包含 NaN 和 Inf
-data = {
-    "value1": 123.45,
-    "value2": float('nan'),  # NaN值
-    "value3": 678.90,
-    "value4": float('inf')   # Inf值
+plot_dict = {
+    'title': '市场份额',
+    'labels': ["产品A", "产品B", "产品C", "产品D"],
+    'sizes': [40, 30, 20, 10],  # 各部分的大小
+    'explode': (0.1, 0, 0, 0),  # 突出显示某一部分
+    'xlabel': '产品类别',
+    'ylabel': '市场份额 (%)',
 }
 
-print(parse_nan(data))
+plot_mnaager = PlotManager()
+plot_mnaager.show_pie_chart(plot_dict)

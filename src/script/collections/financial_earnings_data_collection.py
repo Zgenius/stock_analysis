@@ -1,12 +1,12 @@
 import utils.stock_utils as su
-from model.statement_of_financial_position import StatementOfFinancialPosition
+from model.statement_of_earnings import StatementOfEarnings
 from model.stock_basic_info import StockBasicInfo
 from utils.json_utils import parse_json
 from time import sleep
 from utils.dict_utils import parse_nan
 from datetime import datetime, timedelta
 
-def financial_position_data_collection():
+def financial_earnings_data_collection():
     now = datetime.now().date()
     # 最近1年之前
     last_year_date = now - timedelta(days = 365)
@@ -18,31 +18,31 @@ def financial_position_data_collection():
             data = su.stock_statement_of_financial_position(stock.symbol)
         except Exception as e:
             continue
-        financial_position_list = []
+        earnings_list = []
         for ignore, record in data.iterrows():
-            # 交易日小于当前日期则跳过 TODO 记得打开
+            # 交易日小于当前日期则跳过
             if record["report_date"] < last_year_date:
                 continue
 
             # 这里将nan转成字符串，要不数据库没办法存储
             record_dict = parse_nan(record.to_dict())
 
-            financial_position = {
+            earnings = {
                 'symbol': stock.symbol,
                 'name': stock.name,
                 'report_date': record["REPORT_DATE"],
                 'extra_info': parse_json(record_dict)
             }
-            financial_position_list.append(financial_position)
+            earnings_list.append(earnings)
 
-        if len(financial_position_list) == 0:
+        if len(earnings_list) == 0:
             continue
         
         # 批量插入并在冲突时更新
         update_fields = ['name', 'report_date', 'extra_info']
-        StatementOfFinancialPosition.batch_create(financial_position_list, update_fields)
+        StatementOfEarnings.batch_create(earnings_list, update_fields)
         sleep(0.1)
 
 if __name__ == "__main__":
-    financial_position_data_collection()
+    financial_earnings_data_collection()
 print("financialposition_data_collection.py done")

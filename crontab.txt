@@ -9,6 +9,13 @@ STOCK_ANALYSIS_DIR=xxx
 0 20 1 5,9,11 * cd $STOCK_ANALYSIS_DIR && .venv/bin/python3 src/script/collections/ex_rights_data_collection.py
 # 获取财报简报
 0 20 1 5,9,11 * cd $STOCK_ANALYSIS_DIR && .venv/bin/python3 src/script/collections/financial_brief_data_collection.py
+# 获取资产负债表数据
+0 21 1 5,9,11 * cd $STOCK_ANALYSIS_DIR && .venv/bin/python3 src/script/collections/financial_position_data_collection.py
+# 获取利润表数据
+20 21 1 5,9,11 * cd $STOCK_ANALYSIS_DIR && .venv/bin/python3 src/script/collections/financial_brifinancial_earnings_data_collectionef_data_collection.py
+# 获取现金流量表数据
+40 21 1 5,9,11 * cd $STOCK_ANALYSIS_DIR && .venv/bin/python3 src/script/collections/financial_cash_flows_data_collection.py
+
 # 每周一到周五20点获取当天的价格数据
 0 20 * * 1-5 cd $STOCK_ANALYSIS_DIR && .venv/bin/python3 src/script/collections/price_history_daily_data_collection.py
 # 每周一到周五20点获取当天估值数据

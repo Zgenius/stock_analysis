@@ -13,6 +13,7 @@ class PlotManager:
     def __init__(self):
         pass
 
+    # 生成折线图
     def show_line_chart(self, plot_dict):
         # 设置样式风格
         plt.style.use(self.STYLE)
@@ -57,6 +58,43 @@ class PlotManager:
         plt.rcParams['font.sans-serif'] = ['Kai']  
         # 解决负号显示问题
         plt.rcParams['axes.unicode_minus'] = False  
+
+        # 调整布局
+        plt.tight_layout()
+
+        plt.show()
+    
+    # 生成饼状图
+    def show_pie_chart(self, plot_dict):
+        # 设置样式风格
+        plt.style.use(self.STYLE)
+
+        # 创建一个图表, 设置图片大小
+        fig, ax = plt.subplots(figsize=(8, 8))
+
+        # 设置图表标题
+        ax.set_title(plot_dict['title'], fontsize=20, fontweight="bold", color="#333333")
+
+        # 获取数据
+        labels = plot_dict['labels']
+        sizes = plot_dict['sizes']
+        explode = plot_dict.get('explode', [0] * len(labels))  # 突出显示某些部分
+
+        # 绘制饼图
+        wedges, texts, autotexts = ax.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%',
+                                          shadow=True, startangle=140, textprops=dict(color="w"))
+
+        # 设置文本大小
+        for text in texts + autotexts:
+            text.set_fontsize(14)
+
+        # 设置图例
+        ax.legend(wedges, labels, fontsize=12, loc="upper right")
+
+        # 设置中文字体为黑体（SimHei），你可以根据系统字体情况替换为其他中文字体
+        plt.rcParams['font.sans-serif'] = ['Kai']
+        # 解决负号显示问题
+        plt.rcParams['axes.unicode_minus'] = False
 
         # 调整布局
         plt.tight_layout()
