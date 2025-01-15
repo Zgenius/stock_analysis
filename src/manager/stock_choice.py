@@ -72,7 +72,7 @@ def stock_choice(top = 20):
 
     stock_code_list = []
     # 所有股票信息
-    stocks = su.index_contain_stocks(fc.CODE_ZZ_A500)
+    stocks = su.index_contain_stocks(fc.CODE_HS_300)
     for index, row in stocks.iterrows():
         stock_info = su.stock_individual_info(row[const.FUND_CONTAINS_STOCK_CODE])
         stock_availability = datetime.strptime(str(su.stock_individual_info_get(stock_info, const.STOCK_AVAILABILITY)), "%Y%m%d")

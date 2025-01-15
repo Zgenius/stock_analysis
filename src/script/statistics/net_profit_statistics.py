@@ -46,4 +46,4 @@ class netProftStatistics:
 
 if __name__ == "__main__":
     np = netProftStatistics()
-    np.show("600519")
+    np.show("688093")
