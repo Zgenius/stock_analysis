@@ -5,6 +5,7 @@ import constant.fund_code_constant as fc
 import manager.stock_info_manager as sim
 import utils.date_utils as du
 import math
+from model.stock_basic_info import StockBasicInfo
 from datetime import datetime, timedelta
 
 # 获取最新财报日期
@@ -72,21 +73,20 @@ def stock_choice(top = 20):
 
     stock_code_list = []
     # 所有股票信息
-    stocks = su.index_contain_stocks(fc.CODE_HS_300)
-    for index, row in stocks.iterrows():
-        stock_info = su.stock_individual_info(row[const.FUND_CONTAINS_STOCK_CODE])
-        stock_availability = datetime.strptime(str(su.stock_individual_info_get(stock_info, const.STOCK_AVAILABILITY)), "%Y%m%d")
+    stocks = StockBasicInfo.select(StockBasicInfo.symbol, StockBasicInfo.name, StockBasicInfo.listing_time, StockBasicInfo.sector).distinct().order_by(StockBasicInfo.symbol.asc()).all()
+    for row in stocks:
+        stock_availability = row.listing_time
         # 如果上市时间不小于可接受的最早上市时间，就过滤掉
         if stock_availability > earliest_availability:
             continue
 
         # 过滤掉行业：医疗，地产，金融，汽车
-        sector_name = su.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_SECTOR)
+        sector_name = row.sector
         if sector_name in filter_sector_names:
             continue
 
         # 记录下满足条件的编码
-        stock_code_list.append(su.stock_individual_info_get(stock_info, const.STOCK_INDIVIDUAL_CODE))
+        stock_code_list.append(row.symbol)
 
     # 获取财务数据基础信息
     stock_code_2_date_2_base_info = su.stock_2_date_base_info(annual_report_dates)

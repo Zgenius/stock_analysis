@@ -180,3 +180,7 @@ def stock_statement_of_cash_flows(symbol):
     # 转换成到交易所的编码
     code = convert_stock_code(symbol)
     return ak.stock_cash_flow_sheet_by_report_em(code)
+
+# 通过东方财富获取估值数据
+def stock_px_data(symbol):
+    return ak.stock_value_em(symbol)

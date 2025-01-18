@@ -1,4 +1,4 @@
-akshare>=1.15.32
+akshare>=1.15.77
 asgiref>=3.8.1
 backtrader>=1.9.78.123
 beautifulsoup4>=4.12.3

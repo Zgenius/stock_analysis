@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from manager.plot_manager import PlotManager
 from model.stock_basic_info import StockBasicInfo
 
-#最近15年的营业收入和净利润
+# 最近15年的营业收入和净利润
 class netProftStatistics:
     def __init__(self):
         pass
@@ -46,4 +46,4 @@ class netProftStatistics:
 
 if __name__ == "__main__":
     np = netProftStatistics()
-    np.show("688093")
+    np.show("600612")

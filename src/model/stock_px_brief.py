@@ -13,5 +13,8 @@ class StockPxBrief(BaseModel):
     ps_ttm = Column(Float)  # 市销率TTM
     dv_ratio = Column(Float)  # 股息率
     dv_ttm = Column(Float)  # 股息率TTM
+    pcf = Column(Float)  # 实现率
+    peg = Column(Float)  # peg
+    negotiable_shares = Column(Float)  # 流通股本
     total_mv = Column(Float)  # 总市值
     extra_info = Column(Text)
