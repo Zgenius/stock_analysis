@@ -6,8 +6,8 @@ from time import sleep
 from datetime import datetime
 
 def px_data_collection():
-    # now = datetime.now().date()
-    now = datetime(2025, 1, 3).date()
+    now = datetime.now().date()
+    # now = datetime(2025, 1, 3).date()
     # 获取所有股票编码
     stocks = StockBasicInfo.select(StockBasicInfo.symbol, StockBasicInfo.name).distinct().order_by(StockBasicInfo.symbol.asc()).all()
 
@@ -19,8 +19,8 @@ def px_data_collection():
         px_brief_list = []
         for ignore, record in data.iterrows():
             # 交易日小于当前日期则跳过
-            # if record["数据日期"] < now:
-                # continue
+            if record["数据日期"] < now:
+                continue
 
             px_brief = {
                 'symbol': stock.symbol,
